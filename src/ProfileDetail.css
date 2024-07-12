@@ -1,0 +1,126 @@
+/* ProfileDetail.css */
+
+/* .profile-detail {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  max-width: 1000px;
+  margin: 40px auto;
+  font-family: Arial, sans-serif;
+}
+
+.profile-detail h2 {
+  margin-bottom: 20px;
+  font-size: 28px;
+  color: #333;
+  text-align: center;
+}
+
+.profile-detail table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.profile-detail th,
+.profile-detail td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.profile-detail th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+  color: #555;
+}
+
+.profile-detail tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.profile-detail tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+.profile-detail td {
+  color: #555;
+}
+
+.profile-detail p {
+  text-align: center;
+  color: #666;
+  font-size: 18px;
+} */
+
+
+
+
+
+
+
+
+
+/* ProfileDetail.css with Seesion */
+
+.profile-detail {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  max-width: 1000px;
+  margin: 40px auto;
+  font-family: Arial, sans-serif;
+}
+
+.profile-detail h2 {
+  margin-bottom: 20px;
+  font-size: 28px;
+  color: #333;
+  text-align: center;
+}
+
+.profile-detail table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.profile-detail th,
+.profile-detail td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.profile-detail th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+  color: #555;
+}
+
+.profile-detail tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.profile-detail tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+.profile-detail td {
+  color: #555;
+}
+
+.profile-detail p {
+  text-align: center;
+  color: #666;
+  font-size: 18px;
+}

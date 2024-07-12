@@ -1,0 +1,89 @@
+.create-rule {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.create-rule h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+  text-align: center;
+  color: #333;
+}
+
+.create-rule form {
+  display: flex;
+  flex-direction: column;
+}
+
+.create-rule label {
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.create-rule input,
+.create-rule textarea,
+.create-rule select {
+  margin-bottom: 20px;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 98%;
+}
+
+.create-rule textarea {
+  resize: vertical;
+  height: 100px;
+}
+
+.create-rule .condition-group,
+.create-rule .action-group {
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.create-rule .condition-group h4,
+.create-rule .action-group h4 {
+  margin-top: 0;
+}
+
+.create-rule button[type="button"] {
+  margin-top: 10px;
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.create-rule button[type="button"]:hover {
+  background-color: #0056b3;
+}
+
+.create-rule button[type="submit"] {
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #fff;
+  background-color: #28a745;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.create-rule button[type="submit"]:hover {
+  background-color: #218838;
+}
+
+.confirmation-message {
+  color: green;
+  font-weight: bold;
+  margin-top: 20px;
+}
