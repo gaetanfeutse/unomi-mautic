@@ -1258,6 +1258,24 @@ function CreateRule() {
                       <option value="properties(firstName)">properties(firstName)</option>
                       <option value="properties(lastName)">properties(lastName)</option>
                       <option value="properties(email)">properties(email)</option>
+                      <option value="properties(email)">properties(email)</option>
+                      <option value="properties(jobTitle)">properties(jobTitle)</option>
+                      <option value="properties(nationality)">properties(nationality)</option>
+                      <option value="properties(phoneNumber)">properties(phoneNumber)</option>
+                      <option value="properties(age)">properties(age)</option>
+                      <option value="properties(birthDate)">properties(birthDate)</option>
+                      <option value="properties(maritalStatus)">properties(maritalStatus)</option>
+                      <option value="properties(address)">properties(address)</option>
+                      <option value="properties(city)">properties(city)</option>
+                      <option value="properties(facebookId)">properties(facebookId)</option>
+                      <option value="properties(zipCode)">properties(zipCode)</option>
+                      <option value="properties(countryName)">properties(countryName)</option>
+                      <option value="properties(linkedInId)">properties(linkedInId)</option>
+                      <option value="properties(googleId)">properties(googleId)</option>
+                      <option value="properties(twitterId)">properties(twitterId)</option>
+                      <option value="properties(kids)">properties(kids)</option>
+                      <option value="properties(company)">properties(company)</option>
+                      <option value="properties(income)">properties(income)</option>
                       <option value="properties(lastVisit)">properties(lastVisit)</option>
                       <option value="properties(previousVisit)">properties(previousVisit)</option>
                       <option value="properties(nbOfVisits)">properties(nbOfVisits)</option>
@@ -1277,6 +1295,23 @@ function CreateRule() {
                       <option value="eventProperty::flattenedProperties.fields.lastName">eventProperty::flattenedProperties.fields.lastName</option>
                       <option value="eventProperty::flattenedProperties.fields.firstName">eventProperty::flattenedProperties.fields.firstName</option>
                       <option value="eventProperty::flattenedProperties.fields.email">eventProperty::flattenedProperties.fields.email</option>
+                      <option value="eventProperty::flattenedProperties.fields.jobTitle">eventProperty::flattenedProperties.fields.jobTitle</option>
+                      <option value="eventProperty::flattenedProperties.fields.nationality">eventProperty::flattenedProperties.fields.nationality</option>
+                      <option value="eventProperty::flattenedProperties.fields.phoneNumber">eventProperty::flattenedProperties.fields.phoneNumber</option>
+                      <option value="eventProperty::flattenedProperties.fields.age">eventProperty::flattenedProperties.fields.age</option>
+                      <option value="eventProperty::flattenedProperties.fields.birthDate">eventProperty::flattenedProperties.fields.birthDate</option>
+                      <option value="eventProperty::flattenedProperties.fields.maritalStatus">eventProperty::flattenedProperties.fields.maritalStatus</option>
+                      <option value="eventProperty::flattenedProperties.fields.address">eventProperty::flattenedProperties.fields.email</option>
+                      <option value="eventProperty::flattenedProperties.fields.city">eventProperty::flattenedProperties.fields.city</option>
+                      <option value="eventProperty::flattenedProperties.fields.facebookId">eventProperty::flattenedProperties.fields.facebookId</option>
+                      <option value="eventProperty::flattenedProperties.fields.zipCode">eventProperty::flattenedProperties.fields.zipCode</option>
+                      <option value="eventProperty::flattenedProperties.fields.countryName">eventProperty::flattenedProperties.fields.countryName</option>
+                      <option value="eventProperty::flattenedProperties.fields.linkedInId">eventProperty::flattenedProperties.fields.linkedInId</option>
+                      <option value="eventProperty::flattenedProperties.fields.googleId">eventProperty::flattenedProperties.fields.googleId</option>
+                      <option value="eventProperty::flattenedProperties.fields.twitterId">eventProperty::flattenedProperties.fields.twitterId</option>
+                      <option value="eventProperty::flattenedProperties.fields.kids">eventProperty::flattenedProperties.fields.kids</option>
+                      <option value="eventProperty::flattenedProperties.fields.company">eventProperty::flattenedProperties.fields.company</option>
+                      <option value="eventProperty::flattenedProperties.fields.income">eventProperty::flattenedProperties.fields.income</option>
                     </select>
                   </div>
                   <div>
@@ -1307,6 +1342,24 @@ function CreateRule() {
                       <option value="properties(firstName)">properties(firstName)</option>
                       <option value="properties(lastName)">properties(lastName)</option>
                       <option value="properties(email)">properties(email)</option>
+                      <option value="properties(email)">properties(email)</option>
+                      <option value="properties(jobTitle)">properties(jobTitle)</option>
+                      <option value="properties(nationality)">properties(nationality)</option>
+                      <option value="properties(phoneNumber)">properties(phoneNumber)</option>
+                      <option value="properties(age)">properties(age)</option>
+                      <option value="properties(birthDate)">properties(birthDate)</option>
+                      <option value="properties(maritalStatus)">properties(maritalStatus)</option>
+                      <option value="properties(address)">properties(address)</option>
+                      <option value="properties(city)">properties(city)</option>
+                      <option value="properties(facebookId)">properties(facebookId)</option>
+                      <option value="properties(zipCode)">properties(zipCode)</option>
+                      <option value="properties(countryName)">properties(countryName)</option>
+                      <option value="properties(linkedInId)">properties(linkedInId)</option>
+                      <option value="properties(googleId)">properties(googleId)</option>
+                      <option value="properties(twitterId)">properties(twitterId)</option>
+                      <option value="properties(kids)">properties(kids)</option>
+                      <option value="properties(company)">properties(company)</option>
+                      <option value="properties(income)">properties(income)</option>
                       <option value="properties(lastVisit)">properties(lastVisit)</option>
                       <option value="mergeIdentifier">mergeIdentifier</option>
                     </select>
