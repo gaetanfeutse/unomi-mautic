@@ -1323,7 +1323,20 @@ function CreateRule() {
                       <option value="eventProperty::flattenedProperties.fields.lastName">eventProperty::flattenedProperties.fields.lastName</option>
                       <option value="eventProperty::flattenedProperties.fields.firstName">eventProperty::flattenedProperties.fields.firstName</option>
                       <option value="eventProperty::flattenedProperties.fields.email">eventProperty::flattenedProperties.fields.email</option>
+                      <option value="eventProperty::flattenedProperties.fields.jobTitle">eventProperty::flattenedProperties.fields.jobTitle</option>
+                      <option value="eventProperty::flattenedProperties.fields.nationality">eventProperty::flattenedProperties.fields.nationality</option>
+                      <option value="eventProperty::flattenedProperties.fields.phoneNumber">eventProperty::flattenedProperties.fields.phoneNumber</option>
+                      <option value="eventProperty::flattenedProperties.fields.age">eventProperty::flattenedProperties.fields.age</option>
+                      <option value="eventProperty::flattenedProperties.fields.birthDate">eventProperty::flattenedProperties.fields.birthDate</option>
+                      <option value="eventProperty::flattenedProperties.fields.maritalStatus">eventProperty::flattenedProperties.fields.maritalStatus</option>
+                      <option value="eventProperty::flattenedProperties.fields.address">eventProperty::flattenedProperties.fields.email</option>
+                      <option value="eventProperty::flattenedProperties.fields.city">eventProperty::flattenedProperties.fields.city</option>
+                      <option value="eventProperty::flattenedProperties.fields.facebookId">eventProperty::flattenedProperties.fields.facebookId</option>
+                      <option value="eventProperty::flattenedProperties.fields.zipCode">eventProperty::flattenedProperties.fields.zipCode</option>
+                      <option value="eventProperty::flattenedProperties.fields.email">eventProperty::flattenedProperties.fields.email</option>
+                      <option value="eventProperty::flattenedProperties.fields.email">eventProperty::flattenedProperties.fields.email</option>
                       <option value="eventProperty::target.properties(email)">eventProperty::target.properties(email)</option>
+                      
                     </select>
                   </div>
                 </>
