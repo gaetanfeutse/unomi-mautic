@@ -156,10 +156,9 @@
 .profile-item .bts {
   background-color: green;
   color: white;
-  width: 80px;
-  height: 30px; 
+  border: none;
   padding: 5px 10px; 
-  font-size: 12px;
+  font-size: 5px;
   line-height: 1;
   cursor: pointer;
 }
