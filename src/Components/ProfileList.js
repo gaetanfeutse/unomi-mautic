@@ -212,8 +212,8 @@ function ProfileList() {
                 {renderProfileField("Kids", profile.properties?.kids)}
                 {renderProfileField("Company", profile.properties?.company)}
                 {renderProfileField("Income", profile.properties?.income)}
-                {renderProfileField("surname", profile.properties?.surname)}
-                {renderProfileField("Level of education", profile.properties?.levelofeducation)}
+                {renderProfileField("surename", profile.properties?.surename)}
+                {renderProfileField("Level of education", profile.properties?.levelOfEducation)}
               </>
             )}
             <button className="bts" onClick={() => handleSeeMore(profile.itemId)}>
