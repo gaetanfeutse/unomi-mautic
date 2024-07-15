@@ -1333,8 +1333,13 @@ function CreateRule() {
                       <option value="eventProperty::flattenedProperties.fields.city">eventProperty::flattenedProperties.fields.city</option>
                       <option value="eventProperty::flattenedProperties.fields.facebookId">eventProperty::flattenedProperties.fields.facebookId</option>
                       <option value="eventProperty::flattenedProperties.fields.zipCode">eventProperty::flattenedProperties.fields.zipCode</option>
-                      <option value="eventProperty::flattenedProperties.fields.email">eventProperty::flattenedProperties.fields.email</option>
-                      <option value="eventProperty::flattenedProperties.fields.email">eventProperty::flattenedProperties.fields.email</option>
+                      <option value="eventProperty::flattenedProperties.fields.countryName">eventProperty::flattenedProperties.fields.countryName</option>
+                      <option value="eventProperty::flattenedProperties.fields.linkedInId">eventProperty::flattenedProperties.fields.linkedInId</option>
+                      <option value="eventProperty::flattenedProperties.fields.googleId">eventProperty::flattenedProperties.fields.googleId</option>
+                      <option value="eventProperty::flattenedProperties.fields.twitterId">eventProperty::flattenedProperties.fields.twitterId</option>
+                      <option value="eventProperty::flattenedProperties.fields.kids">eventProperty::flattenedProperties.fields.kids</option>
+                      <option value="eventProperty::flattenedProperties.fields.company">eventProperty::flattenedProperties.fields.company</option>
+                      <option value="eventProperty::flattenedProperties.fields.income">eventProperty::flattenedProperties.fields.income</option>
                       <option value="eventProperty::target.properties(email)">eventProperty::target.properties(email)</option>
                       
                     </select>
