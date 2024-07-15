@@ -95,7 +95,7 @@ function RuleList() {
 
   return (
     <div className="rule-list">
-      <h2>Rules List</h2>
+      <h2>Rules List test</h2>
       <input
         type="text"
         placeholder="Search rules..."
