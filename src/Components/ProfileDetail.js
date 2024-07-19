@@ -218,7 +218,7 @@ function ProfileDetail() {
   const { id } = useParams();
   const [profileDetails, setProfileDetails] = useState([]);
   const [sessionDetails, setSessionDetails] = useState([]);
-  const [comments, setComments] = useState([]);
+  const [userProfile, setUserProfile] = useState([]);
 
   useEffect(() => {
     const fetchProfileDetails = async () => {
@@ -264,42 +264,26 @@ function ProfileDetail() {
       }
     };
 
-    const fetchComments = async () => {
+    const fetchUserProfile = async () => {
       try {
-        const response = await fetch('https://cdp.qilinsa.com:9443/cxs/profiles/search', {
-          method: 'POST',
+        const response = await fetch(`https://cdp.qilinsa.com:9443/cxs/profiles/${id}`, {
+          method: 'GET',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Basic ' + btoa('karaf:karaf')
-          },
-          body: JSON.stringify({
-            offset: 0,
-            limit: 1000,
-            condition: {
-              type: 'profilePropertyCondition',
-              parameterValues: {
-                propertyName: 'profileId',
-                comparisonOperator: 'equals',
-                propertyValue: id
-              }
-            }
-          })
+          }
         });
         const data = await response.json();
-        setComments(data.list || []);
+        setUserProfile(data.properties || {});
       } catch (error) {
-        console.error('Error fetching comments:', error);
+        console.error('Error fetching user profile:', error);
       }
     };
 
     fetchProfileDetails();
     fetchSessionDetails();
-    fetchComments();
+    fetchUserProfile();
   }, [id]);
-
-  const renderField = (label, value) => {
-    return value ? <td>{value}</td> : <td>N/A</td>;
-  };
 
   return (
     <div className="profile-detail">
@@ -327,10 +311,10 @@ function ProfileDetail() {
                 <td>{detail.eventType}</td>
                 <td>{new Date(detail.timeStamp).toLocaleString()}</td>
                 <td>{detail.sessionId}</td>
-                {renderField("Destination URL", detail.target?.properties?.pageInfo?.destinationURL)}
-                {renderField("Page ID", detail.target?.properties?.pageInfo?.pageID)}
-                {renderField("Page Path", detail.target?.properties?.pageInfo?.pagePath)}
-                {renderField("Page Name", detail.target?.properties?.pageInfo?.pageName)}
+                <td>{detail.target?.properties?.pageInfo?.destinationURL || 'N/A'}</td>
+                <td>{detail.target?.properties?.pageInfo?.pageID || 'N/A'}</td>
+                <td>{detail.target?.properties?.pageInfo?.pagePath || 'N/A'}</td>
+                <td>{detail.target?.properties?.pageInfo?.pageName || 'N/A'}</td>
               </tr>
             ))}
           </tbody>
@@ -356,10 +340,10 @@ function ProfileDetail() {
             {sessionDetails.map((session) => (
               <tr key={session.itemId}>
                 <td>{session.itemId}</td>
-                {renderField("Operating System", session.properties?.operatingSystemFamily)}
-                {renderField("Device Category", session.properties?.deviceCategory)}
-                {renderField("User Agent", session.properties?.userAgentName)}
-                {renderField("Country", session.properties?.countryAndCity)}
+                <td>{session.properties.operatingSystemFamily || 'N/A'}</td>
+                <td>{session.properties.deviceCategory || 'N/A'}</td>
+                <td>{session.properties.userAgentName || 'N/A'}</td>
+                <td>{session.properties.countryAndCity || 'N/A'}</td>
                 <td>{(session.duration / 60000).toFixed(2)}</td> {/* Convert milliseconds to minutes */}
               </tr>
             ))}
@@ -368,7 +352,7 @@ function ProfileDetail() {
       )}
 
       <h2>User Comments</h2>
-      {comments.length === 0 ? (
+      {Object.keys(userProfile).length === 0 ? (
         <p>No comments found.</p>
       ) : (
         <table>
@@ -379,20 +363,16 @@ function ProfileDetail() {
               <th>Rating</th>
               <th>Comment</th>
               <th>Email</th>
-              <th>Page Name</th>
             </tr>
           </thead>
           <tbody>
-            {comments.map((profile) => (
-              <tr key={profile.itemId}>
-                {renderField("Comment Post ID", profile.properties?.comment_post_ID)}
-                {renderField("Author", profile.properties?.author)}
-                {renderField("Rating", profile.properties?.rating)}
-                {renderField("Comment", profile.properties?.comment)}
-                {renderField("Email", profile.properties?.email)}
-                {renderField("Page Name", profile.pageName)}
-              </tr>
-            ))}
+            <tr>
+              <td>{userProfile.comment_post_ID || 'N/A'}</td>
+              <td>{userProfile.author || 'N/A'}</td>
+              <td>{userProfile.rating || 'N/A'}</td>
+              <td>{userProfile.comment || 'N/A'}</td>
+              <td>{userProfile.email || 'N/A'}</td>
+            </tr>
           </tbody>
         </table>
       )}

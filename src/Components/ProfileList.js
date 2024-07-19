@@ -188,6 +188,7 @@ function ProfileList() {
             <h3>{profile.properties?.firstName} {profile.properties?.lastName}</h3>
             <p>ID: {profile.itemId}</p>
             {renderProfileField("Email", profile.properties?.email)}
+            <p>comment: {profile.properties?.comment}</p>
             <p>Number of Visits: {profile.properties?.nbOfVisits}</p>
             <p>First Visit: {profile.properties?.firstVisit ? new Date(profile.properties.firstVisit).toLocaleString() : 'N/A'}</p>
             <p>Last Visit: {profile.properties?.lastVisit ? new Date(profile.properties.lastVisit).toLocaleString() : 'N/A'}</p>
