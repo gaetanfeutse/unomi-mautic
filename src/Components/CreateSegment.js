@@ -1,257 +1,353 @@
 import React, { useState, useEffect } from 'react';
-import '../CreateSegment.css';
+import '../CreateSegment.css'; // Assurez-vous d'avoir un fichier CSS pour le styling
 
-const CreateSegment = () => {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [conditions, setConditions] = useState([
-    { propertyName: '', propertyValue: '', comparisonOperator: 'equals' }
-  ]);
-  const [booleanOperator, setBooleanOperator] = useState('and');
+function SegmentCreator() {
+  const initialSegmentState = {
+    metadata: {
+      id: '',
+      name: '',
+      scope: '',
+      description: '',
+      readOnly: false,
+    },
+    condition: {
+      type: 'booleanCondition',
+      parameterValues: {
+        operator: 'and',
+        subConditions: [],
+      },
+    },
+  };
+
+  const initialConditionState = {
+    type: 'profilePropertyCondition',
+    parameterValues: {
+      propertyName: '',
+      comparisonOperator: '',
+      propertyValue: '',
+      propertyValueInteger: '',
+      propertyValueDateExpr: '',
+    },
+  };
+
+  const [segment, setSegment] = useState(initialSegmentState);
+  const [condition, setCondition] = useState(initialConditionState);
+  const [message, setMessage] = useState(null);
   const [scopes, setScopes] = useState([]);
-  const [selectedScope, setSelectedScope] = useState('');
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
-
-  const commonPropertyNames = [
-    { value: 'nbOfVisits', label: 'Number of visits' },
-    { value: 'lastVisit', label: 'Last visit date' },
-    { value: 'customerType', label: 'Customer type' },
-    { value: 'email', label: 'Email address' },
-    { value: 'age', label: 'Age' },
-    { value: 'pageViewCount', label: 'Page view count' },
-    { value: 'firstName', label: 'First name' },
-    { value: 'lastName', label: 'Last name' },
-    { value: 'profileId', label: 'Profile ID' },
-    { value: 'leadAssignedTo', label: 'Lead assigned to' },
-    { value: 'previousVisit', label: 'Previous visit date' },
-    { value: 'scope', label: 'Scope' },
-    { value: 'isAnonymousProfile', label: 'Anonymous profile' },
-    { value: 'duration', label: 'Duration' },
-    { value: 'nbOfOrders', label: 'Number of orders' },
-    { value: 'gender', label: 'Gender' },
-    { value: 'firstVisit', label: 'First Visit' },
-    // Add more commonly used property names as needed
-  ];
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchScopes = async () => {
-      try {
-        const response = await fetch('https://cdp.qilinsa.com:9443/cxs/scopes', {
-          headers: {
-            'Authorization': 'Basic ' + btoa('karaf:karaf'),
-          },
-        });
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        console.log('Fetched scopes:', data);
-        setScopes(data);
-      } catch (error) {
+    fetch('https://cdp.qilinsa.com:9443/cxs/scopes', {
+      headers: {
+        Authorization: 'Basic ' + btoa('karaf:karaf'),
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log('Full response data:', data);
+        const scopes = data.scopes || data; // Trying both options to find scopes
+        console.log('Scopes fetched:', scopes);
+        setScopes(scopes);
+      })
+      .catch((error) => {
         console.error('Error fetching scopes:', error);
-        setError('Error fetching scopes');
-      }
-    };
-
-    fetchScopes();
+        setMessage('Failed to fetch scopes. Please check console for details.');
+      });
   }, []);
 
+  const handleChangeSegment = (e) => {
+    const { name, value, type, checked } = e.target;
+    setSegment((prevSegment) => ({
+      ...prevSegment,
+      metadata: {
+        ...prevSegment.metadata,
+        [name]: type === 'checkbox' ? checked : value,
+      },
+    }));
+  };
+
+  const handleChangeCondition = (e) => {
+    const { name, value } = e.target;
+    setCondition((prevCondition) => ({
+      ...prevCondition,
+      parameterValues: {
+        ...prevCondition.parameterValues,
+        [name]: name === 'propertyValueInteger' ? (value === '' ? '' : parseInt(value, 10)) : value,
+      },
+    }));
+  };
+
   const handleAddCondition = () => {
-    setConditions([...conditions, { propertyName: '', propertyValue: '', comparisonOperator: 'equals' }]);
+    // Validation des champs requis
+    if (!condition.parameterValues.propertyName || !condition.parameterValues.comparisonOperator) {
+      setMessage('Please fill in Property Name and Comparison Operator.');
+      return;
+    }
+
+    // Création d'une copie de la condition
+    const newCondition = { ...condition };
+
+    // Suppression des champs vides ou non applicables
+    if (newCondition.parameterValues.comparisonOperator === 'exists' || newCondition.parameterValues.comparisonOperator === 'notExists') {
+      delete newCondition.parameterValues.propertyValue;
+      delete newCondition.parameterValues.propertyValueInteger;
+      delete newCondition.parameterValues.propertyValueDateExpr;
+    } else {
+      if (!newCondition.parameterValues.propertyValue) {
+        delete newCondition.parameterValues.propertyValue;
+      }
+      if (newCondition.parameterValues.propertyValueInteger === '') {
+        delete newCondition.parameterValues.propertyValueInteger;
+      }
+      if (!newCondition.parameterValues.propertyValueDateExpr) {
+        delete newCondition.parameterValues.propertyValueDateExpr;
+      }
+    }
+
+    // Ajout de la condition valide à la liste des sous-conditions
+    setSegment((prevSegment) => ({
+      ...prevSegment,
+      condition: {
+        ...prevSegment.condition,
+        parameterValues: {
+          ...prevSegment.condition.parameterValues,
+          subConditions: [...prevSegment.condition.parameterValues.subConditions, newCondition],
+        },
+      },
+    }));
+
+    // Réinitialisation de l'état de la condition
+    setCondition(initialConditionState);
+    setMessage(null);
   };
 
   const handleRemoveCondition = (index) => {
-    if (index === 0) return; // Prevent removing the first condition
-    setConditions(conditions.filter((_, i) => i !== index));
+    setSegment((prevSegment) => {
+      const newSubConditions = prevSegment.condition.parameterValues.subConditions.filter((_, i) => i !== index);
+      return {
+        ...prevSegment,
+        condition: {
+          ...prevSegment.condition,
+          parameterValues: {
+            ...prevSegment.condition.parameterValues,
+            subConditions: newSubConditions,
+          },
+        },
+      };
+    });
   };
 
-  const handleConditionChange = (index, field, value) => {
-    const newConditions = conditions.map((condition, i) => 
-      i === index ? { ...condition, [field]: value } : condition
-    );
-    setConditions(newConditions);
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
-    const segmentData = {
-      metadata: {
-        id: name.toLowerCase().replace(/ /g, '-'),
-        name,
-        description,
-        scope: selectedScope,
-      },
-      condition: {
-        type: conditions.length > 1 ? 'booleanCondition' : 'profilePropertyCondition',
-        parameterValues: conditions.length > 1 ? {
-          operator: booleanOperator,
-          subConditions: conditions.map((condition) => ({
-            type: 'profilePropertyCondition',
-            parameterValues: {
-              propertyName: condition.propertyName,
-              comparisonOperator: condition.comparisonOperator,
-              propertyValue: condition.propertyValue,
-              propertyValueInteger: isNaN(condition.propertyValue) ? undefined : parseInt(condition.propertyValue),
-              propertyValueDateExpr: condition.propertyValue.includes('now') ? condition.propertyValue : undefined
-            },
-          })),
-        } : {
-          propertyName: conditions[0].propertyName,
-          comparisonOperator: conditions[0].comparisonOperator,
-          propertyValue: conditions[0].propertyValue,
-          propertyValueInteger: isNaN(conditions[0].propertyValue) ? undefined : parseInt(conditions[0].propertyValue),
-          propertyValueDateExpr: conditions[0].propertyValue.includes('now') ? conditions[0].propertyValue : undefined
-        }
+    if (!segment.metadata.id || !segment.metadata.name || !segment.metadata.scope) {
+      setMessage('Please fill in all required fields.');
+      return;
+    }
+
+    setLoading(true);
+
+    const newCondition = { ...condition };
+    if (newCondition.parameterValues.comparisonOperator === 'exists' || newCondition.parameterValues.comparisonOperator === 'notExists') {
+      delete newCondition.parameterValues.propertyValue;
+      delete newCondition.parameterValues.propertyValueInteger;
+      delete newCondition.parameterValues.propertyValueDateExpr;
+    } else {
+      if (!newCondition.parameterValues.propertyValue) {
+        delete newCondition.parameterValues.propertyValue;
       }
+      if (newCondition.parameterValues.propertyValueInteger === '') {
+        delete newCondition.parameterValues.propertyValueInteger;
+      }
+      if (!newCondition.parameterValues.propertyValueDateExpr) {
+        delete newCondition.parameterValues.propertyValueDateExpr;
+      }
+    }
+
+    const subConditions = [
+      ...segment.condition.parameterValues.subConditions,
+      newCondition,
+    ].filter((cond) => cond.parameterValues.propertyName && cond.parameterValues.comparisonOperator);
+
+    const segmentData = {
+      ...segment,
+      condition: {
+        ...segment.condition,
+        parameterValues: {
+          ...segment.condition.parameterValues,
+          subConditions,
+        },
+      },
     };
 
-    try {
-      const response = await fetch('https://cdp.qilinsa.com:9443/cxs/segments', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Basic ' + btoa('karaf:karaf'),
-        },
-        body: JSON.stringify(segmentData),
+    setMessage(null);
+
+    fetch('https://cdp.qilinsa.com:9443/cxs/segments', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Basic ' + btoa('karaf:karaf'),
+      },
+      body: JSON.stringify(segmentData),
+    })
+      .then((response) => {
+        setLoading(false);
+        if (!response.ok) {
+          throw new Error('Network response was not ok: ' + response.status);
+        }
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          return response.json();
+        } else {
+          return {};
+        }
+      })
+      .then((data) => {
+        if (Object.keys(data).length === 0) {
+          console.log('Segment created successfully (empty response).');
+        } else {
+          console.log('Segment created:', data);
+        }
+        setMessage('Segment created successfully!');
+        setSegment(initialSegmentState);
+        setCondition(initialConditionState);
+      })
+      .catch((error) => {
+        setLoading(false);
+        console.error('Error:', error);
+        setMessage('Failed to create segment. Please check console for details.');
       });
-
-      if (!response.ok) {
-        const errorMessage = await response.text();
-        throw new Error(`HTTP error! status: ${response.status} - ${errorMessage}`);
-      }
-
-      const responseData = await response.text();
-      const data = responseData ? JSON.parse(responseData) : {};
-      console.log('Segment created successfully:', data);
-      setSuccess('Segment created successfully!');
-      setError(null);
-      setName('');
-      setDescription('');
-      setConditions([{ propertyName: '', propertyValue: '', comparisonOperator: 'equals' }]);
-      setSelectedScope('');
-    } catch (error) {
-      console.error('Error creating segment:', error);
-      setError(error.message);
-      setSuccess(null);
-    }
   };
 
   return (
-    <div className="create-segment">
-      <h2>Create Segment</h2>
+    <div className="segment-creator">
+      <h1>Create Segment</h1>
       <form onSubmit={handleSubmit}>
-        <div className="create-segment-input">
-          <label>Name:</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
+        <h2>Segment Metadata</h2>
+        <div className="form-group">
+          <label htmlFor="id">ID *</label>
+          <input type="text" id="id" name="id" placeholder="ID" value={segment.metadata.id} onChange={handleChangeSegment} required />
         </div>
-        <div className="create-segment-input">
-          <label>Description:</label>
-          <input
-            type="text"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-          />
+        <div className="form-group">
+          <label htmlFor="name">Name *</label>
+          <input type="text" id="name" name="name" placeholder="Name" value={segment.metadata.name} onChange={handleChangeSegment} required />
         </div>
-        <div className="create-segment-input">
-          <label>Scope:</label>
-          <select
-            value={selectedScope}
-            onChange={(e) => setSelectedScope(e.target.value)}
-            required
-          >
-            <option value="" disabled>Select a scope</option>
-            {scopes.map((scope) => {
-              if (scope.metadata) {
-                return (
-                  <option key={scope.metadata.id} value={scope.metadata.id}>
-                    {scope.metadata.name}
-                  </option>
-                );
-              }
-              return null;
-            })}
+        <div className="form-group">
+          <label htmlFor="scope">Scope</label>
+          <select id="scope" name="scope" value={segment.metadata.scope} onChange={handleChangeSegment} required>
+            <option value="">Select Scope</option>
+            {scopes.map((scope) => (
+              <option key={scope.itemId} value={scope.itemId}>{scope.itemId}</option>
+            ))}
           </select>
         </div>
-        {conditions.length > 1 && (
-          <div className="create-segment-input">
-            <label>Boolean Operator:</label>
-            <select
-              value={booleanOperator}
-              onChange={(e) => setBooleanOperator(e.target.value)}
-              required
-            >
-              <option value="and">AND</option>
-              <option value="or">OR</option>
-            </select>
-          </div>
+        <div className="form-group">
+          <label htmlFor="description">Description</label>
+          <input type="text" id="description" name="description" placeholder="Description" value={segment.metadata.description} onChange={handleChangeSegment} />
+        </div>
+        <div className="form-group">
+          <label>
+            Read Only
+            <input type="checkbox" name="readOnly" checked={segment.metadata.readOnly} onChange={handleChangeSegment} />
+          </label>
+        </div>
+        <h2>Add Condition</h2>
+        <div className="form-group">
+          <label htmlFor="propertyName">Property Name *</label>
+          <select type="text" id="propertyName" name="propertyName" value={condition.parameterValues.propertyName} onChange={handleChangeCondition} required>
+            <option value="">select Property Name</option>
+            <option value="properties.firstName">First Name</option>
+            <option value="properties.lastName">Last Name</option>
+            <option value="properties.surename">Sure Name</option>
+            <option value="properties.gender">gender</option>
+            <option value="properties.birthDate">Birth Date</option>
+            <option value="properties.age">Age</option>
+            <option value="properties.country">Country</option>
+            <option value="properties.city">City</option>
+            <option value="properties.maritalStatus">Marital Status</option>
+            <option value="properties.levelOfEducation">Level Of Education</option>
+            <option value="properties.jobTitle">Job Title</option>
+            <option value="properties.nationality">Nationality</option>
+            <option value="properties.adress">Adress</option>
+            <option value="properties.phoneNumber">Phone Number</option>
+            <option value="properties.firstVisit">First Visit</option>
+            <option value="properties.lastVisit">Last Visit</option>
+            <option value="properties.nbOfvisits">Number Of Visits</option>
+            <option value="properties.email">Email</option>
+            <option value="properties.pageViewCount">Page View Count</option>
+            <option value="properties.previousVisit">Previous Visit</option>
+          </select>
+        </div>
+        <div className="form-group">
+          <label htmlFor="comparisonOperator">Comparison Operator *</label>
+          <select id="comparisonOperator" name="comparisonOperator" value={condition.parameterValues.comparisonOperator} onChange={handleChangeCondition} required>
+            <option value="">Select Operator</option>
+            <option value="equals">Equals</option>
+            <option value="notEquals">Not Equals</option>
+            <option value="exists">Exists</option>
+            <option value="notExists">Not Exists</option>
+            <option value="greaterThan">Greater Than</option>
+            <option value="lessThan">Less Than</option>
+          </select>
+        </div>
+        {condition.parameterValues.comparisonOperator !== 'exists' && condition.parameterValues.comparisonOperator !== 'notExists' && (
+          <>
+            <div className="form-group">
+              <label htmlFor="propertyValue">Property Value</label>
+              <input type="text" id="propertyValue" name="propertyValue" placeholder="Property Value" value={condition.parameterValues.propertyValue || ''} onChange={handleChangeCondition} />
+            </div>
+            <div className="form-group">
+              <label htmlFor="propertyValueInteger">Property Value Integer</label>
+              <input type="number" id="propertyValueInteger" name="propertyValueInteger" placeholder="Property Value Integer" value={condition.parameterValues.propertyValueInteger || ''} onChange={handleChangeCondition} />
+            </div>
+            <div className="form-group">
+              <label htmlFor="propertyValueDateExpr">Property Value Date Expression</label>
+              <input type="text" id="propertyValueDateExpr" name="propertyValueDateExpr" placeholder="Property Value Date Expression" value={condition.parameterValues.propertyValueDateExpr || ''} onChange={handleChangeCondition} />
+            </div>
+          </>
         )}
-        {conditions.map((condition, index) => (
-          <div className="condition-group" key={index}>
-            <h4>Condition {index + 1}</h4>
-            <div className="create-segment-input">
-              <label>Property Name:</label>
+        <button type="button" onClick={handleAddCondition}>Add Condition</button>
+        <h2>Segment Conditions</h2>
+        <ul>
+          {segment.condition.parameterValues.subConditions.map((subCondition, index) => (
+            <li key={index}>
+              {subCondition.parameterValues.propertyName} {subCondition.parameterValues.comparisonOperator} {subCondition.parameterValues.propertyValue || subCondition.parameterValues.propertyValueInteger || subCondition.parameterValues.propertyValueDateExpr || ''}
+              <button type="button" onClick={() => handleRemoveCondition(index)}>Remove</button>
+            </li>
+          ))}
+        </ul>
+        {segment.condition.parameterValues.subConditions.length > 0 && (
+          <>
+            <h2>Operator</h2>
+            <div className="form-group">
               <select
-                value={condition.propertyName}
-                onChange={(e) => handleConditionChange(index, 'propertyName', e.target.value)}
-                required
+                name="operator"
+                value={segment.condition.parameterValues.operator}
+                onChange={(e) =>
+                  setSegment((prevSegment) => ({
+                    ...prevSegment,
+                    condition: {
+                      ...prevSegment.condition,
+                      parameterValues: {
+                        ...prevSegment.condition.parameterValues,
+                        operator: e.target.value,
+                      },
+                    },
+                  }))
+                }
               >
-                <option value="" disabled>Select a property</option>
-                {commonPropertyNames.map((property) => (
-                  <option key={property.value} value={property.value}>
-                    {property.label}
-                  </option>
-                ))}
+                <option value="and">AND</option>
+                <option value="or">OR</option>
               </select>
             </div>
-            <div className="create-segment-input">
-              <label>Comparison Operator:</label>
-              <select
-                value={condition.comparisonOperator}
-                onChange={(e) => handleConditionChange(index, 'comparisonOperator', e.target.value)}
-                required
-              >
-                <option value="equals">Equals</option>
-                <option value="contains">Contains</option>
-                <option value="startsWith">Starts With</option>
-                <option value="endsWith">Ends With</option>
-                <option value="greaterThan">Greater Than</option>
-                <option value="lessThan">Less Than</option>
-                <option value="exists">Exists</option>
-              </select>
-            </div>
-            <div className="create-segment-input">
-              <label>Property Value:</label>
-              <input
-                type="text"
-                value={condition.propertyValue}
-                onChange={(e) => handleConditionChange(index, 'propertyValue', e.target.value)}
-                required={condition.comparisonOperator !== 'exists'}
-              />
-            </div>
-            {index !== 0 && (
-              <button type="button" onClick={() => handleRemoveCondition(index)}>
-                Remove Condition
-              </button>
-            )}
-          </div>
-        ))}
-        <button type="button" onClick={handleAddCondition}>
-          Add Condition
-        </button>
-        <button type="submit">Create Segment</button>
+          </>
+        )}
+        <button type="submit" disabled={loading}>Create Segment</button>
       </form>
-      {error && <div className="error">{error}</div>}
-      {success && <div className="success">{success}</div>}
+      {loading && <p>Loading...</p>}
+      {message && <p style={{ color: message.startsWith('Failed') ? 'red' : 'green' }}>{message}</p>}
     </div>
   );
-};
+}
 
-export default CreateSegment;
+export default SegmentCreator;

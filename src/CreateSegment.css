@@ -1,82 +1,75 @@
-.create-segment {
+.segment-creator {
   max-width: 600px;
-  margin: 0 auto;
+  margin: auto;
   padding: 20px;
-  background-color: #f9f9f9;
+  border: 1px solid #ddd;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.create-segment h2 {
-  margin-bottom: 20px;
-  font-size: 24px;
-  text-align: center;
-  color: #333;
+.form-group {
+  margin-bottom: 15px;
 }
 
-.create-segment form {
-  display: flex;
-  flex-direction: column;
-}
-
-.create-segment label {
-  margin-bottom: 8px;
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
   font-weight: bold;
 }
 
-.create-segment input,
-.create-segment textarea,
-.create-segment select {
-  margin-bottom: 20px;
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  width: 90%;
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
 }
 
-.create-segment textarea {
-  resize: vertical;
-  height: 100px;
-}
-
-.create-segment .condition-group {
-  margin-bottom: 20px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.create-segment .condition-group h4 {
-  margin-top: 0;
-}
-
-.create-segment button[type="button"] {
-  margin-top: 20px;
-  padding: 10px 15px;
-  font-size: 16px;
-  color: #fff;
+button {
+  display: inline-block;
+  padding: 10px 20px;
   background-color: #007bff;
+  color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  margin-top: 10px;
 }
 
-.create-segment button[type="button"]:hover {
+button:disabled {
+  background-color: #ccc;
+}
+
+button[type="button"] {
+  background-color: #28a745;
+}
+
+button[type="button"]:hover,
+button:hover {
   background-color: #0056b3;
 }
 
-.create-segment button[type="submit"] {
-  padding: 10px 20px;
-  margin: 5px;
-  font-size: 16px;
-  color: #fff;
-  background-color: #28a745;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+button[type="button"]:hover {
+  background-color: #218838;
 }
 
-.create-segment button[type="submit"]:hover {
-  background-color: #218838;
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+ul li {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+ul li button {
+  background-color: #dc3545;
+  padding: 5px 10px;
+}
+
+ul li button:hover {
+  background-color: #c82333;
 }
