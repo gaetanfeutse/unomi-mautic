@@ -1,130 +1,257 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../CreateSegment.css';
 
-function CreateSegment() {
-  const [segmentName, setSegmentName] = useState('');
+const CreateSegment = () => {
+  const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [conditions, setConditions] = useState([
-    {
-      type: 'profilePropertyCondition',
-      parameterValues: {
-        propertyName: '',
-        comparisonOperator: '',
-        propertyValue: ''
-      }
-    }
+    { propertyName: '', propertyValue: '', comparisonOperator: 'equals' }
   ]);
+  const [booleanOperator, setBooleanOperator] = useState('and');
+  const [scopes, setScopes] = useState([]);
+  const [selectedScope, setSelectedScope] = useState('');
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
-  const handleSegmentNameChange = (e) => setSegmentName(e.target.value);
-  const handleDescriptionChange = (e) => setDescription(e.target.value);
+  const commonPropertyNames = [
+    { value: 'nbOfVisits', label: 'Number of visits' },
+    { value: 'lastVisit', label: 'Last visit date' },
+    { value: 'customerType', label: 'Customer type' },
+    { value: 'email', label: 'Email address' },
+    { value: 'age', label: 'Age' },
+    { value: 'pageViewCount', label: 'Page view count' },
+    { value: 'firstName', label: 'First name' },
+    { value: 'lastName', label: 'Last name' },
+    { value: 'profileId', label: 'Profile ID' },
+    { value: 'leadAssignedTo', label: 'Lead assigned to' },
+    { value: 'previousVisit', label: 'Previous visit date' },
+    { value: 'scope', label: 'Scope' },
+    { value: 'isAnonymousProfile', label: 'Anonymous profile' },
+    { value: 'duration', label: 'Duration' },
+    { value: 'nbOfOrders', label: 'Number of orders' },
+    { value: 'gender', label: 'Gender' },
+    { value: 'firstVisit', label: 'First Visit' },
+    // Add more commonly used property names as needed
+  ];
 
-  const handleConditionChange = (index, field, value) => {
-    const updatedConditions = [...conditions];
-    updatedConditions[index].parameterValues[field] = value;
-    setConditions(updatedConditions);
-  };
+  useEffect(() => {
+    const fetchScopes = async () => {
+      try {
+        const response = await fetch('https://cdp.qilinsa.com:9443/cxs/scopes', {
+          headers: {
+            'Authorization': 'Basic ' + btoa('karaf:karaf'),
+          },
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log('Fetched scopes:', data);
+        setScopes(data);
+      } catch (error) {
+        console.error('Error fetching scopes:', error);
+        setError('Error fetching scopes');
+      }
+    };
+
+    fetchScopes();
+  }, []);
 
   const handleAddCondition = () => {
-    setConditions([
-      ...conditions,
-      {
-        type: 'profilePropertyCondition',
-        parameterValues: {
-          propertyName: '',
-          comparisonOperator: '',
-          propertyValue: ''
-        }
-      }
-    ]);
+    setConditions([...conditions, { propertyName: '', propertyValue: '', comparisonOperator: 'equals' }]);
   };
 
   const handleRemoveCondition = (index) => {
-    const updatedConditions = conditions.filter((_, idx) => idx !== index);
-    setConditions(updatedConditions);
+    if (index === 0) return; // Prevent removing the first condition
+    setConditions(conditions.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  const handleConditionChange = (index, field, value) => {
+    const newConditions = conditions.map((condition, i) => 
+      i === index ? { ...condition, [field]: value } : condition
+    );
+    setConditions(newConditions);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
     const segmentData = {
-      name: segmentName,
-      description: description,
+      metadata: {
+        id: name.toLowerCase().replace(/ /g, '-'),
+        name,
+        description,
+        scope: selectedScope,
+      },
       condition: {
-        type: 'booleanCondition',
-        parameterValues: {
-          operator: 'or',
-          subConditions: conditions
+        type: conditions.length > 1 ? 'booleanCondition' : 'profilePropertyCondition',
+        parameterValues: conditions.length > 1 ? {
+          operator: booleanOperator,
+          subConditions: conditions.map((condition) => ({
+            type: 'profilePropertyCondition',
+            parameterValues: {
+              propertyName: condition.propertyName,
+              comparisonOperator: condition.comparisonOperator,
+              propertyValue: condition.propertyValue,
+              propertyValueInteger: isNaN(condition.propertyValue) ? undefined : parseInt(condition.propertyValue),
+              propertyValueDateExpr: condition.propertyValue.includes('now') ? condition.propertyValue : undefined
+            },
+          })),
+        } : {
+          propertyName: conditions[0].propertyName,
+          comparisonOperator: conditions[0].comparisonOperator,
+          propertyValue: conditions[0].propertyValue,
+          propertyValueInteger: isNaN(conditions[0].propertyValue) ? undefined : parseInt(conditions[0].propertyValue),
+          propertyValueDateExpr: conditions[0].propertyValue.includes('now') ? conditions[0].propertyValue : undefined
         }
       }
     };
-    console.log('Segment Data:', segmentData);
-    // Perform the API call to submit the segmentData
+
+    try {
+      const response = await fetch('https://cdp.qilinsa.com:9443/cxs/segments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Basic ' + btoa('karaf:karaf'),
+        },
+        body: JSON.stringify(segmentData),
+      });
+
+      if (!response.ok) {
+        const errorMessage = await response.text();
+        throw new Error(`HTTP error! status: ${response.status} - ${errorMessage}`);
+      }
+
+      const responseData = await response.text();
+      const data = responseData ? JSON.parse(responseData) : {};
+      console.log('Segment created successfully:', data);
+      setSuccess('Segment created successfully!');
+      setError(null);
+      setName('');
+      setDescription('');
+      setConditions([{ propertyName: '', propertyValue: '', comparisonOperator: 'equals' }]);
+      setSelectedScope('');
+    } catch (error) {
+      console.error('Error creating segment:', error);
+      setError(error.message);
+      setSuccess(null);
+    }
   };
 
   return (
     <div className="create-segment">
       <h2>Create Segment</h2>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="name">Segment Name:</label>
-          <input type="text" id="name" name="name" value={segmentName} onChange={handleSegmentNameChange} required />
+        <div className="create-segment-input">
+          <label>Name:</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
         </div>
-        <div>
-          <label htmlFor="description">Description:</label>
-          <textarea id="description" name="description" value={description} onChange={handleDescriptionChange} required></textarea>
+        <div className="create-segment-input">
+          <label>Description:</label>
+          <input
+            type="text"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            required
+          />
         </div>
-        <div>
-          <h3>Conditions</h3>
-          {conditions.map((condition, index) => (
-            <div key={index} className="condition-group">
-              <h4>Condition {index + 1}</h4>
-              <div>
-                <label htmlFor={`propertyName-${index}`}>Property Name:</label>
-                <input
-                  type="text"
-                  id={`propertyName-${index}`}
-                  name="propertyName"
-                  value={condition.parameterValues.propertyName}
-                  onChange={(e) => handleConditionChange(index, 'propertyName', e.target.value)}
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor={`comparisonOperator-${index}`}>Comparison Operator:</label>
-                <select
-                  id={`comparisonOperator-${index}`}
-                  name="comparisonOperator"
-                  value={condition.parameterValues.comparisonOperator}
-                  onChange={(e) => handleConditionChange(index, 'comparisonOperator', e.target.value)}
-                  required
-                >
-                  <option value="">Select an operator</option>
-                  <option value="exists">Exists</option>
-                  <option value="greaterThan">Greater Than</option>
-                  <option value="lessThan">Less Than</option>
-                  <option value="equals">Equals</option>
-                  {/* Add more operators as needed */}
-                </select>
-              </div>
-              <div>
-                <label htmlFor={`propertyValue-${index}`}>Property Value:</label>
-                <input
-                  type="text"
-                  id={`propertyValue-${index}`}
-                  name="propertyValue"
-                  value={condition.parameterValues.propertyValue}
-                  onChange={(e) => handleConditionChange(index, 'propertyValue', e.target.value)}
-                  required
-                />
-              </div>
-              <button type="button" onClick={() => handleRemoveCondition(index)}>Remove Condition</button>
+        <div className="create-segment-input">
+          <label>Scope:</label>
+          <select
+            value={selectedScope}
+            onChange={(e) => setSelectedScope(e.target.value)}
+            required
+          >
+            <option value="" disabled>Select a scope</option>
+            {scopes.map((scope) => {
+              if (scope.metadata) {
+                return (
+                  <option key={scope.metadata.id} value={scope.metadata.id}>
+                    {scope.metadata.name}
+                  </option>
+                );
+              }
+              return null;
+            })}
+          </select>
+        </div>
+        {conditions.length > 1 && (
+          <div className="create-segment-input">
+            <label>Boolean Operator:</label>
+            <select
+              value={booleanOperator}
+              onChange={(e) => setBooleanOperator(e.target.value)}
+              required
+            >
+              <option value="and">AND</option>
+              <option value="or">OR</option>
+            </select>
+          </div>
+        )}
+        {conditions.map((condition, index) => (
+          <div className="condition-group" key={index}>
+            <h4>Condition {index + 1}</h4>
+            <div className="create-segment-input">
+              <label>Property Name:</label>
+              <select
+                value={condition.propertyName}
+                onChange={(e) => handleConditionChange(index, 'propertyName', e.target.value)}
+                required
+              >
+                <option value="" disabled>Select a property</option>
+                {commonPropertyNames.map((property) => (
+                  <option key={property.value} value={property.value}>
+                    {property.label}
+                  </option>
+                ))}
+              </select>
             </div>
-          ))}
-          <button type="button" onClick={handleAddCondition}>Add Condition</button>
-        </div>
-        <button type="submit">Create</button>
+            <div className="create-segment-input">
+              <label>Comparison Operator:</label>
+              <select
+                value={condition.comparisonOperator}
+                onChange={(e) => handleConditionChange(index, 'comparisonOperator', e.target.value)}
+                required
+              >
+                <option value="equals">Equals</option>
+                <option value="contains">Contains</option>
+                <option value="startsWith">Starts With</option>
+                <option value="endsWith">Ends With</option>
+                <option value="greaterThan">Greater Than</option>
+                <option value="lessThan">Less Than</option>
+                <option value="exists">Exists</option>
+              </select>
+            </div>
+            <div className="create-segment-input">
+              <label>Property Value:</label>
+              <input
+                type="text"
+                value={condition.propertyValue}
+                onChange={(e) => handleConditionChange(index, 'propertyValue', e.target.value)}
+                required={condition.comparisonOperator !== 'exists'}
+              />
+            </div>
+            {index !== 0 && (
+              <button type="button" onClick={() => handleRemoveCondition(index)}>
+                Remove Condition
+              </button>
+            )}
+          </div>
+        ))}
+        <button type="button" onClick={handleAddCondition}>
+          Add Condition
+        </button>
+        <button type="submit">Create Segment</button>
       </form>
+      {error && <div className="error">{error}</div>}
+      {success && <div className="success">{success}</div>}
     </div>
   );
-}
+};
 
 export default CreateSegment;

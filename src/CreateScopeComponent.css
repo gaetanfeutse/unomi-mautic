@@ -1,0 +1,114 @@
+.create-scope {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  .create-scope h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    text-align: center;
+    color: #333;
+  }
+  .create-scope form {
+    display: flex;
+    flex-direction: column;
+  }
+  .create-scope label {
+    margin-bottom: 8px;
+    font-weight: bold;
+  }
+  
+  .create-scope input {
+    margin-bottom: 20px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 90%;
+  }
+  .create-scope button[type="button"]:hover {
+    background-color: #0056b3;
+  }
+  
+  .create-scope button[type="submit"] {
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #28a745;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .create-scope button[type="submit"]:hover {
+    background-color: #218838;
+  }
+
+  .scope-list {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .scope-list h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    text-align: center;
+    color: #333;
+  }
+  
+  .scope-list input[type="text"] {
+    margin-bottom: 20px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+  }
+  
+  .scope-list ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .scope-list .rule-item {
+    margin-bottom: 20px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .scope-list .rule-item h3 {
+    margin-top: 0;
+    font-size: 20px;
+    color: #333;
+  }
+  
+  .scope-list .rule-item p {
+    margin: 5px 0;
+    font-size: 16px;
+    color: #666;
+  }
+  
+  .scope-list .rule-item button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #fff;
+    background-color: #dc3545;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .scope-list .rule-item button:hover {
+    background-color: #c82333;
+  }

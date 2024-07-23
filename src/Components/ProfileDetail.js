@@ -231,6 +231,7 @@ function ProfileDetail() {
           },
           body: JSON.stringify({
             offset: 0,
+            //limit:5,
             condition: {
               type: 'profilePropertyCondition',
               parameterValues: {

@@ -10,6 +10,7 @@ import SegmentDetails from './Components/SegmentDetails';
 import RuleList from './Components/RuleList';
 import CreateRule from './Components/CreateRule';
 import ProfileDetail from './Components/ProfileDetail';
+import CreateScopeComponent from './Components/CreateScopeComponent';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
             {/* <Route path="/" exact component={SegmentList} /> */}
             <Route path="/profiles/:id" element={<ProfileDetails />} />
             <Route path="/segment/:segmentId" element={<SegmentDetails />} />
+            <Route path="/create-scopes" element={<CreateScopeComponent />}/>
           </Routes>
         </MainContent>
       </div>
