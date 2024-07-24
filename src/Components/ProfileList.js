@@ -185,9 +185,12 @@ function ProfileList() {
       <ul>
         {currentProfiles.map(profile => (
           <li key={profile.itemId} className="profile-item">
-            <h3>{profile.properties?.firstName} {profile.properties?.lastName}</h3>
+            <h3>{profile.properties?.firstName} {profile.properties?.lastName} {profile.properties?.surename}</h3>
             <p>ID: {profile.itemId}</p>
             {renderProfileField("Email", profile.properties?.email)}
+            {renderProfileField("LastName", profile.properties?.lastName)}
+            {renderProfileField("FirstName", profile.properties?.firstName)}
+            {renderProfileField("SureName", profile.properties?.surename)}
             <p>Number of Visits: {profile.properties?.nbOfVisits}</p>
             <p>First Visit: {profile.properties?.firstVisit ? new Date(profile.properties.firstVisit).toLocaleString() : 'N/A'}</p>
             <p>Last Visit: {profile.properties?.lastVisit ? new Date(profile.properties.lastVisit).toLocaleString() : 'N/A'}</p>
@@ -212,7 +215,6 @@ function ProfileList() {
                 {renderProfileField("Kids", profile.properties?.kids)}
                 {renderProfileField("Company", profile.properties?.company)}
                 {renderProfileField("Income", profile.properties?.income)}
-                {renderProfileField("surename", profile.properties?.surename)}
                 {renderProfileField("Level of education", profile.properties?.levelOfEducation)}
                 {renderProfileField("Form of Comunication", profile.properties?.menu)}
                 {renderProfileField("Language of Communication", profile.properties?.language)}
