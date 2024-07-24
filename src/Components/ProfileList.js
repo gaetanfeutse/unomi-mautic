@@ -216,7 +216,7 @@ function ProfileList() {
                 {renderProfileField("Company", profile.properties?.company)}
                 {renderProfileField("Income", profile.properties?.income)}
                 {renderProfileField("Level of education", profile.properties?.levelOfEducation)}
-                {renderProfileField("Form of Comunication", profile.properties?.menu)}
+                {renderProfileField("Form of Comunication", profile.properties?.formOfComunication)}
                 {renderProfileField("Language of Communication", profile.properties?.language)}
                 {renderProfileField("Your Profession", profile.properties?.profession)}
               </>
