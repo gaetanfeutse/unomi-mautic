@@ -198,6 +198,7 @@ function ProfileList() {
             <p>Segments: {profile.segments?.join(', ')}</p>
             {expandedProfile === profile.itemId && (
               <>
+                {renderProfileField("Number of kids", profile.properties?.kids)}
                 {renderProfileField("Job Title", profile.properties?.jobTitle)}
                 {renderProfileField("Gender", profile.properties?.gender)}
                 {renderProfileField("Nationality", profile.properties?.nationality)}
