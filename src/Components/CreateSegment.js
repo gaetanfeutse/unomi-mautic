@@ -262,7 +262,7 @@ function SegmentCreator() {
             <option value="properties.gender">gender</option>
             <option value="properties.birthDate">Birth Date</option>
             <option value="properties.age">Age</option>
-            <option value="properties.country">Country</option>
+            <option value="properties.countryName">Country</option>
             <option value="properties.city">City</option>
             <option value="properties.maritalStatus">Marital Status</option>
             <option value="properties.levelOfEducation">Level Of Education</option>
