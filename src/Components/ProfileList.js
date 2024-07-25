@@ -214,7 +214,6 @@ function ProfileList() {
                 {renderProfileField("LinkedIn ID", profile.properties?.linkedInId)}
                 {renderProfileField("Google ID", profile.properties?.googleId)}
                 {renderProfileField("Twitter ID", profile.properties?.twitterId)}
-                {renderProfileField("Kids", profile.properties?.kids)}
                 {renderProfileField("Company", profile.properties?.company)}
                 {renderProfileField("Income", profile.properties?.income)}
                 {renderProfileField("Level of education", profile.properties?.levelOfEducation)}

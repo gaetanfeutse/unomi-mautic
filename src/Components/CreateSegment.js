@@ -276,6 +276,7 @@ function SegmentCreator() {
             <option value="properties.email">Email</option>
             <option value="properties.pageViewCount">Page View Count</option>
             <option value="properties.previousVisit">Previous Visit</option>
+            <option value="properties.kids">kids</option>
           </select>
         </div>
         <div className="form-group">
