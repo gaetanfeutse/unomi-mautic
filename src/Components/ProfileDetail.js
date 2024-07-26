@@ -209,7 +209,6 @@
 
 
 
-
 import '../ProfileDetail.css';
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
@@ -219,6 +218,12 @@ function ProfileDetail() {
   const [profileDetails, setProfileDetails] = useState([]);
   const [sessionDetails, setSessionDetails] = useState([]);
   const [userProfile, setUserProfile] = useState([]);
+  const [profilePage, setProfilePage] = useState(1);
+  const [sessionPage, setSessionPage] = useState(1);
+  const [profileTotalPages, setProfileTotalPages] = useState(0);
+  const [sessionTotalPages, setSessionTotalPages] = useState(0);
+
+  const ITEMS_PER_PAGE = 10;
 
   useEffect(() => {
     const fetchProfileDetails = async () => {
@@ -231,7 +236,7 @@ function ProfileDetail() {
           },
           body: JSON.stringify({
             offset: 0,
-            //limit:5,
+            limit: 1000,
             condition: {
               type: 'profilePropertyCondition',
               parameterValues: {
@@ -243,7 +248,9 @@ function ProfileDetail() {
           })
         });
         const data = await response.json();
-        setProfileDetails(data.list || []);
+        const sortedData = (data.list || []).sort((a, b) => new Date(b.timeStamp) - new Date(a.timeStamp));
+        setProfileDetails(sortedData);
+        setProfileTotalPages(Math.ceil(sortedData.length / ITEMS_PER_PAGE));
       } catch (error) {
         console.error('Error fetching profile details:', error);
       }
@@ -259,7 +266,9 @@ function ProfileDetail() {
           }
         });
         const data = await response.json();
-        setSessionDetails(data.list || []);
+        const sortedSessions = data.list || [];
+        setSessionDetails(sortedSessions);
+        setSessionTotalPages(Math.ceil(sortedSessions.length / ITEMS_PER_PAGE));
       } catch (error) {
         console.error('Error fetching session details:', error);
       }
@@ -286,71 +295,92 @@ function ProfileDetail() {
     fetchUserProfile();
   }, [id]);
 
+  const getPagedData = (data, page) => {
+    const startIndex = (page - 1) * ITEMS_PER_PAGE;
+    return data.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  };
+
   return (
     <div className="profile-detail">
       <h2>Profile Details</h2>
       {profileDetails.length === 0 ? (
         <p>No profile details found.</p>
       ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Profile ID</th>
-              <th>Event Type</th>
-              <th>Time</th>
-              <th>Session ID</th>
-              <th>Destination URL</th>
-              <th>Page ID</th>
-              <th>Page Path</th>
-              <th>Page Name</th>
-            </tr>
-          </thead>
-          <tbody>
-            {profileDetails.map((detail) => (
-              <tr key={detail.timeStamp}>
-                <td>{detail.profileId}</td>
-                <td>{detail.eventType}</td>
-                <td>{new Date(detail.timeStamp).toLocaleString()}</td>
-                <td>{detail.sessionId}</td>
-                <td>{detail.target?.properties?.pageInfo?.destinationURL || 'N/A'}</td>
-                <td>{detail.target?.properties?.pageInfo?.pageID || 'N/A'}</td>
-                <td>{detail.target?.properties?.pageInfo?.pagePath || 'N/A'}</td>
-                <td>{detail.target?.properties?.pageInfo?.pageName || 'N/A'}</td>
+        <div>
+          <table>
+            <thead>
+              <tr>
+                <th>Profile ID</th>
+                <th>Event Type</th>
+                <th>Time</th>
+                <th>Session ID</th>
+                <th>Destination URL</th>
+                <th>Page ID</th>
+                <th>Page Path</th>
+                <th>Page Name</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {getPagedData(profileDetails, profilePage).map((detail) => (
+                <tr key={detail.timeStamp}>
+                  <td>{detail.profileId}</td>
+                  <td>{detail.eventType}</td>
+                  <td>{new Date(detail.timeStamp).toLocaleString()}</td>
+                  <td>{detail.sessionId}</td>
+                  <td>{detail.target?.properties?.pageInfo?.destinationURL || 'N/A'}</td>
+                  <td>{detail.target?.properties?.pageInfo?.pageID || 'N/A'}</td>
+                  <td>{detail.target?.properties?.pageInfo?.pagePath || 'N/A'}</td>
+                  <td>{detail.target?.properties?.pageInfo?.pageName || 'N/A'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <Pagination
+            currentPage={profilePage}
+            totalPages={profileTotalPages}
+            onPageChange={setProfilePage}
+          />
+        </div>
       )}
 
+<br/>
       <h2>Session Details</h2>
       {sessionDetails.length === 0 ? (
         <p>No session details found.</p>
       ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Session ID</th>
-              <th>Operating System</th>
-              <th>Device Category</th>
-              <th>User Agent</th>
-              <th>Country</th>
-              <th>Duration (minutes)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sessionDetails.map((session) => (
-              <tr key={session.itemId}>
-                <td>{session.itemId}</td>
-                <td>{session.properties.operatingSystemFamily || 'N/A'}</td>
-                <td>{session.properties.deviceCategory || 'N/A'}</td>
-                <td>{session.properties.userAgentName || 'N/A'}</td>
-                <td>{session.properties.countryAndCity || 'N/A'}</td>
-                <td>{(session.duration / 60000).toFixed(2)}</td> {/* Convert milliseconds to minutes */}
+        <div>
+          <table>
+            <thead>
+              <tr>
+                <th>Session ID</th>
+                <th>Operating System</th>
+                <th>Device Category</th>
+                <th>User Agent</th>
+                <th>Country</th>
+                <th>Duration (minutes)</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {getPagedData(sessionDetails, sessionPage).map((session) => (
+                <tr key={session.itemId}>
+                  <td>{session.itemId}</td>
+                  <td>{session.properties.operatingSystemFamily || 'N/A'}</td>
+                  <td>{session.properties.deviceCategory || 'N/A'}</td>
+                  <td>{session.properties.userAgentName || 'N/A'}</td>
+                  <td>{session.properties.countryAndCity || 'N/A'}</td>
+                  <td>{(session.duration / 60000).toFixed(2)}</td> {/* Convert milliseconds to minutes */}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <Pagination
+            currentPage={sessionPage}
+            totalPages={sessionTotalPages}
+            onPageChange={setSessionPage}
+          />
+        </div>
       )}
+<br/>
 
       <h2>User Comments</h2>
       {Object.keys(userProfile).length === 0 ? (
@@ -381,5 +411,26 @@ function ProfileDetail() {
   );
 }
 
-export default ProfileDetail;
+function Pagination({ currentPage, totalPages, onPageChange }) {
+  const handleClick = (newPage) => {
+    if (newPage > 0 && newPage <= totalPages) {
+      onPageChange(newPage);
+    }
+  };
 
+  return (
+    <div className="pagination">
+      <button onClick={() => handleClick(currentPage - 1)} disabled={currentPage === 1}>
+        Previous
+      </button>
+      <span>
+        Page {currentPage} of {totalPages}
+      </span>
+      <button onClick={() => handleClick(currentPage + 1)} disabled={currentPage === totalPages}>
+        Next
+      </button>
+    </div>
+  );
+}
+
+export default ProfileDetail;
