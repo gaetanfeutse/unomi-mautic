@@ -220,6 +220,16 @@ function ProfileList() {
                 {renderProfileField("Form of Comunication", profile.properties?.formOfComunication)}
                 {renderProfileField("Language of Communication", profile.properties?.language)}
                 {renderProfileField("Your Profession", profile.properties?.profession)}
+                {renderProfileField("Case Number", profile.properties?.caseNumber)}
+                {renderProfileField("Date of Report", profile.properties?.dateOfReport)}
+                {renderProfileField("Your Location of Incident", profile.properties?.locationOfIncident)}
+                {renderProfileField("Agency", profile.properties?.agency)}
+                {renderProfileField("Type of Incident", profile.properties?.typeOfIncident)}
+                {renderProfileField("Description of Incident", profile.properties?.descriptionOfIncident)}
+                {renderProfileField("Type Of Incident", profile.properties?.typeOfIncident)}
+                {renderProfileField("General Observations", profile.properties?.generalObservations)}
+                {renderProfileField("Impact on Victim", profile.properties?.ImpactOnVictim)}
+                {renderProfileField("Evidence ID Number", profile.properties?.evidenceIdNumber)}
               </>
             )}
             <button className="bts" onClick={() => handleSeeMore(profile.itemId)}>
