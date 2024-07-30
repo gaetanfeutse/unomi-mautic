@@ -199,7 +199,6 @@ function ProfileList() {
             {expandedProfile === profile.itemId && (
               <>
                 {renderProfileField("Number of kids", profile.properties?.kids)}
-                {renderProfileField("Number of test", profile.properties?.test)}
                 {renderProfileField("Job Title", profile.properties?.jobTitle)}
                 {renderProfileField("Gender", profile.properties?.gender)}
                 {renderProfileField("Nationality", profile.properties?.nationality)}
