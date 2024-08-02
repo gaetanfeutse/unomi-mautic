@@ -124,7 +124,7 @@ function ProfileList() {
   const confirmDeleteProfile = async () => {
     try {
       if (profileToDelete) {
-        await fetch(`https://cdp.qilinsa.com:9443/cxs/profiles/${profileToDelete.itemId}`, {
+        await fetch(`https://cdp.qilinsa.com:9443/cxs/profiles/${profileToDelete.itemId}?withData=true`, {
           method: 'DELETE',
           headers: {
             'Authorization': 'Basic ' + btoa('karaf:karaf')
