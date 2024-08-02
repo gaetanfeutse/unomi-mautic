@@ -391,11 +391,11 @@ function ProfileDetail() {
               <tr>
                 <th>Session ID</th>
                 <th>Operating System</th>
+                <th>Time</th>
                 <th>Device Category</th>
                 <th>User Agent</th>
                 <th>Country</th>
                 <th>Duration (minutes)</th>
-                <th>Time</th>
               </tr>
             </thead>
             <tbody>
@@ -403,11 +403,11 @@ function ProfileDetail() {
                 <tr key={session.itemId}>
                   <td>{session.itemId}</td>
                   <td>{session.properties.operatingSystemFamily || 'N/A'}</td>
+                  <td>{new Date(session.timeStamp).toLocaleString()}</td>
                   <td>{session.properties.deviceCategory || 'N/A'}</td>
                   <td>{session.properties.userAgentName || 'N/A'}</td>
                   <td>{session.properties.countryAndCity || 'N/A'}</td>
                   <td>{(session.duration / 60000).toFixed(2)}</td> {/* Convert milliseconds to minutes */}
-                  <td>{new Date(session.timeStamp).toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>
@@ -434,10 +434,10 @@ function ProfileDetail() {
               <tr>
                 <th>Comment Post ID</th>
                 <th>Author</th>
+                <th>Time</th>
                 <th>Rating</th>
                 <th>Comment</th>
                 <th>Email</th>
-                <th>Time</th>
               </tr>
             </thead>
             <tbody>
@@ -445,10 +445,10 @@ function ProfileDetail() {
                 <tr key={comment.itemId}>
                   <td>{comment.properties.comment_post_ID || 'N/A'}</td>
                   <td>{comment.properties.author || 'N/A'}</td>
+                  <td>{new Date(comment.timeStamp).toLocaleString()}</td>
                   <td>{comment.properties.rating || 'N/A'}</td>
                   <td>{comment.properties.comment || 'N/A'}</td>
                   <td>{comment.properties.email || 'N/A'}</td>
-                  <td>{new Date(comment.timeStamp).toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>
