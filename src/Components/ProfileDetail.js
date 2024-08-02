@@ -217,11 +217,13 @@ function ProfileDetail() {
   const { id } = useParams();
   const [profileDetails, setProfileDetails] = useState([]);
   const [sessionDetails, setSessionDetails] = useState([]);
-  const [userProfile, setUserProfile] = useState([]);
+  const [comments, setComments] = useState([]);
   const [profilePage, setProfilePage] = useState(1);
   const [sessionPage, setSessionPage] = useState(1);
+  const [commentsPage, setCommentsPage] = useState(1);
   const [profileTotalPages, setProfileTotalPages] = useState(0);
   const [sessionTotalPages, setSessionTotalPages] = useState(0);
+  const [commentsTotalPages, setCommentsTotalPages] = useState(0);
 
   const ITEMS_PER_PAGE = 10;
 
@@ -266,7 +268,7 @@ function ProfileDetail() {
           }
         });
         const data = await response.json();
-        const sortedSessions = data.list || [];
+        const sortedSessions = (data.list || []).sort((a, b) => new Date(b.timeStamp) - new Date(a.timeStamp));
         setSessionDetails(sortedSessions);
         setSessionTotalPages(Math.ceil(sortedSessions.length / ITEMS_PER_PAGE));
       } catch (error) {
@@ -274,25 +276,56 @@ function ProfileDetail() {
       }
     };
 
-    const fetchUserProfile = async () => {
+    const fetchComments = async () => {
       try {
-        const response = await fetch(`https://cdp.qilinsa.com:9443/cxs/profiles/${id}`, {
-          method: 'GET',
+        const response = await fetch('https://cdp.qilinsa.com:9443/cxs/events/search', {
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Basic ' + btoa('karaf:karaf')
-          }
+          },
+          body: JSON.stringify({
+            sortby: 'timeStamp:desc',
+            offset: 0,
+            limit: 1000,
+            condition: {
+              type: 'booleanCondition',
+              parameterValues: {
+                operator: 'and',
+                subConditions: [
+                  {
+                    type: 'profilePropertyCondition',
+                    parameterValues: {
+                      propertyName: 'profileId',
+                      comparisonOperator: 'equals',
+                      propertyValue: id
+                    }
+                  },
+                  {
+                    type: 'eventPropertyCondition',
+                    parameterValues: {
+                      propertyName: 'eventType',
+                      comparisonOperator: 'equals',
+                      propertyValue: 'comment'
+                    }
+                  }
+                ]
+              }
+            }
+          })
         });
         const data = await response.json();
-        setUserProfile(data.properties || {});
+        const sortedComments = (data.list || []).sort((a, b) => new Date(b.timeStamp) - new Date(a.timeStamp));
+        setComments(sortedComments);
+        setCommentsTotalPages(Math.ceil(sortedComments.length / ITEMS_PER_PAGE));
       } catch (error) {
-        console.error('Error fetching user profile:', error);
+        console.error('Error fetching comments:', error);
       }
     };
 
     fetchProfileDetails();
     fetchSessionDetails();
-    fetchUserProfile();
+    fetchComments();
   }, [id]);
 
   const getPagedData = (data, page) => {
@@ -343,7 +376,7 @@ function ProfileDetail() {
         </div>
       )}
 
-<br/>
+      <br />
       <h2>Session Details</h2>
       {sessionDetails.length === 0 ? (
         <p>No session details found.</p>
@@ -354,6 +387,7 @@ function ProfileDetail() {
               <tr>
                 <th>Session ID</th>
                 <th>Operating System</th>
+                <th>Time</th>
                 <th>Device Category</th>
                 <th>User Agent</th>
                 <th>Country</th>
@@ -365,6 +399,7 @@ function ProfileDetail() {
                 <tr key={session.itemId}>
                   <td>{session.itemId}</td>
                   <td>{session.properties.operatingSystemFamily || 'N/A'}</td>
+                  <td>{new Date(session.timeStamp).toLocaleString()}</td>
                   <td>{session.properties.deviceCategory || 'N/A'}</td>
                   <td>{session.properties.userAgentName || 'N/A'}</td>
                   <td>{session.properties.countryAndCity || 'N/A'}</td>
@@ -380,32 +415,43 @@ function ProfileDetail() {
           />
         </div>
       )}
-<br/>
 
+      <br />
       <h2>User Comments</h2>
-      {Object.keys(userProfile).length === 0 ? (
+      {comments.length === 0 ? (
         <p>No comments found.</p>
       ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Comment Post ID</th>
-              <th>Author</th>
-              <th>Rating</th>
-              <th>Comment</th>
-              <th>Email</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>{userProfile.comment_post_ID || 'N/A'}</td>
-              <td>{userProfile.author || 'N/A'}</td>
-              <td>{userProfile.rating || 'N/A'}</td>
-              <td>{userProfile.comment || 'N/A'}</td>
-              <td>{userProfile.email || 'N/A'}</td>
-            </tr>
-          </tbody>
-        </table>
+        <div>
+          <table>
+            <thead>
+              <tr>
+                <th>Comment Post ID</th>
+                <th>Author</th>
+                <th>Time</th>
+                <th>Rating</th>
+                <th>Comment</th>
+                <th>Email</th>
+              </tr>
+            </thead>
+            <tbody>
+              {getPagedData(comments, commentsPage).map((comment) => (
+                <tr key={comment.itemId}>
+                  <td>{comment.properties.comment_post_ID || 'N/A'}</td>
+                  <td>{comment.properties.author || 'N/A'}</td>
+                  <td>{new Date(comment.timeStamp).toLocaleString()}</td>
+                  <td>{comment.properties.rating || 'N/A'}</td>
+                  <td>{comment.properties.comment || 'N/A'}</td>
+                  <td>{comment.properties.email || 'N/A'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <Pagination
+            currentPage={commentsPage}
+            totalPages={commentsTotalPages}
+            onPageChange={setCommentsPage}
+          />
+        </div>
       )}
     </div>
   );
