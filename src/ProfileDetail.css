@@ -176,4 +176,27 @@
 }
 
 
+.navbar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
 
+.navbar button {
+  background-color: #f1f1f1;
+  border: none;
+  padding: 10px 20px;
+  margin: 0 10px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.navbar button.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.navbar button:hover {
+  background-color: #ddd;
+  color: black;
+}

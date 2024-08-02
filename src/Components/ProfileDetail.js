@@ -224,6 +224,7 @@ function ProfileDetail() {
   const [profileTotalPages, setProfileTotalPages] = useState(0);
   const [sessionTotalPages, setSessionTotalPages] = useState(0);
   const [commentsTotalPages, setCommentsTotalPages] = useState(0);
+  const [activeSection, setActiveSection] = useState('profile');
 
   const ITEMS_PER_PAGE = 10;
 
@@ -333,8 +334,8 @@ function ProfileDetail() {
     return data.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   };
 
-  return (
-    <div className="profile-detail">
+  const renderProfileDetails = () => (
+    <div>
       <h2>Profile Details</h2>
       {profileDetails.length === 0 ? (
         <p>No profile details found.</p>
@@ -375,8 +376,11 @@ function ProfileDetail() {
           />
         </div>
       )}
+    </div>
+  );
 
-      <br />
+  const renderSessionDetails = () => (
+    <div>
       <h2>Session Details</h2>
       {sessionDetails.length === 0 ? (
         <p>No session details found.</p>
@@ -387,11 +391,11 @@ function ProfileDetail() {
               <tr>
                 <th>Session ID</th>
                 <th>Operating System</th>
-                <th>Time</th>
                 <th>Device Category</th>
                 <th>User Agent</th>
                 <th>Country</th>
                 <th>Duration (minutes)</th>
+                <th>Time</th>
               </tr>
             </thead>
             <tbody>
@@ -399,11 +403,11 @@ function ProfileDetail() {
                 <tr key={session.itemId}>
                   <td>{session.itemId}</td>
                   <td>{session.properties.operatingSystemFamily || 'N/A'}</td>
-                  <td>{new Date(session.timeStamp).toLocaleString()}</td>
                   <td>{session.properties.deviceCategory || 'N/A'}</td>
                   <td>{session.properties.userAgentName || 'N/A'}</td>
                   <td>{session.properties.countryAndCity || 'N/A'}</td>
                   <td>{(session.duration / 60000).toFixed(2)}</td> {/* Convert milliseconds to minutes */}
+                  <td>{new Date(session.timeStamp).toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>
@@ -415,8 +419,11 @@ function ProfileDetail() {
           />
         </div>
       )}
+    </div>
+  );
 
-      <br />
+  const renderComments = () => (
+    <div>
       <h2>User Comments</h2>
       {comments.length === 0 ? (
         <p>No comments found.</p>
@@ -427,10 +434,10 @@ function ProfileDetail() {
               <tr>
                 <th>Comment Post ID</th>
                 <th>Author</th>
-                <th>Time</th>
                 <th>Rating</th>
                 <th>Comment</th>
                 <th>Email</th>
+                <th>Time</th>
               </tr>
             </thead>
             <tbody>
@@ -438,10 +445,10 @@ function ProfileDetail() {
                 <tr key={comment.itemId}>
                   <td>{comment.properties.comment_post_ID || 'N/A'}</td>
                   <td>{comment.properties.author || 'N/A'}</td>
-                  <td>{new Date(comment.timeStamp).toLocaleString()}</td>
                   <td>{comment.properties.rating || 'N/A'}</td>
                   <td>{comment.properties.comment || 'N/A'}</td>
                   <td>{comment.properties.email || 'N/A'}</td>
+                  <td>{new Date(comment.timeStamp).toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>
@@ -453,6 +460,19 @@ function ProfileDetail() {
           />
         </div>
       )}
+    </div>
+  );
+
+  return (
+    <div className="profile-detail">
+      <nav className="navbar">
+        <button onClick={() => setActiveSection('profile')} className={activeSection === 'profile' ? 'active' : ''}>Profile Details</button>
+        <button onClick={() => setActiveSection('session')} className={activeSection === 'session' ? 'active' : ''}>Session Details</button>
+        <button onClick={() => setActiveSection('comments')} className={activeSection === 'comments' ? 'active' : ''}>User Comments</button>
+      </nav>
+      {activeSection === 'profile' && renderProfileDetails()}
+      {activeSection === 'session' && renderSessionDetails()}
+      {activeSection === 'comments' && renderComments()}
     </div>
   );
 }
