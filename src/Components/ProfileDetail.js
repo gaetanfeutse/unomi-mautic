@@ -441,11 +441,11 @@ function ProfileDetail() {
               <tr>
                 <th>Session ID</th>
                 <th>Operating System</th>
+                <th>Time</th>
                 <th>Device Category</th>
                 <th>User Agent</th>
                 <th>Country</th>
                 <th>Duration (minutes)</th>
-                <th>Time</th>
               </tr>
             </thead>
             <tbody>
@@ -453,11 +453,11 @@ function ProfileDetail() {
                 <tr key={session.itemId}>
                   <td>{session.itemId}</td>
                   <td>{session.properties.operatingSystemFamily || 'N/A'}</td>
+                  <td>{new Date(session.timeStamp).toLocaleString()}</td>
                   <td>{session.properties.deviceCategory || 'N/A'}</td>
                   <td>{session.properties.userAgentName || 'N/A'}</td>
                   <td>{session.properties.countryAndCity || 'N/A'}</td>
                   <td>{(session.duration / 60000).toFixed(2)}</td> {/* Convert milliseconds to minutes */}
-                  <td>{new Date(session.timeStamp).toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>
@@ -484,8 +484,8 @@ function ProfileDetail() {
               <tr>
                 <th>Comment ID</th>
                 <th>Event Type</th>
-                <th>Comment</th>
                 <th>Time</th>
+                <th>Comment</th>
               </tr>
             </thead>
             <tbody>
@@ -493,8 +493,8 @@ function ProfileDetail() {
                 <tr key={comment.itemId}>
                   <td>{comment.itemId}</td>
                   <td>{comment.eventType}</td>
-                  <td>{comment.properties.comment || 'N/A'}</td>
                   <td>{new Date(comment.timeStamp).toLocaleString()}</td>
+                  <td>{comment.properties.comment || 'N/A'}</td>
                 </tr>
               ))}
             </tbody>
@@ -521,11 +521,11 @@ function ProfileDetail() {
               <tr>
                 <th>Sale ID</th>
                 <th>Event Type</th>
+                <th>Time</th>
                 <th>Billing First Name</th>
                 <th>Billing Last Name</th>
                 <th>Payment Method</th>
                 <th>Billing Email</th>
-                <th>Time</th>
               </tr>
             </thead>
             <tbody>
@@ -533,11 +533,11 @@ function ProfileDetail() {
                 <tr key={sale.itemId}>
                   <td>{sale.itemId}</td>
                   <td>{sale.eventType}</td>
+                  <td>{new Date(sale.timeStamp).toLocaleString()}</td>
                   <td>{sale.properties.billing_first_name || 'N/A'}</td>
                   <td>{sale.properties.billing_last_name || 'N/A'}</td>
                   <td>{sale.properties.payment_method || 'N/A'}</td>
                   <td>{sale.properties.billing_email || 'N/A'}</td>
-                  <td>{new Date(sale.timeStamp).toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>
