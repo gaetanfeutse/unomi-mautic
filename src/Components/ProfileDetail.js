@@ -519,25 +519,51 @@ function ProfileDetail() {
           <table>
             <thead>
               <tr>
-                <th>Sale ID</th>
+                <th>Item ID</th>
+                <th>Order Number</th>
                 <th>Event Type</th>
                 <th>Time</th>
+                <th>Order Date</th>
+                <th>Payment Method</th>
                 <th>Billing First Name</th>
                 <th>Billing Last Name</th>
-                <th>Payment Method</th>
                 <th>Billing Email</th>
+                <th>Products</th>
+                <th>Quantities</th>
+                <th>Subtotals</th>
+                <th>Order Total</th>
               </tr>
             </thead>
             <tbody>
               {getPagedData(sales, salesPage).map((sale) => (
                 <tr key={sale.itemId}>
                   <td>{sale.itemId}</td>
+                  <td>{sale.properties.orderNumber || 'N/A'}</td>
                   <td>{sale.eventType}</td>
                   <td>{new Date(sale.timeStamp).toLocaleString()}</td>
+                  <td>{sale.properties.orderDate || 'N/A'}</td>
+                  <td>{sale.properties.paymentMethod || 'N/A'}</td>
                   <td>{sale.properties.billing_first_name || 'N/A'}</td>
                   <td>{sale.properties.billing_last_name || 'N/A'}</td>
-                  <td>{sale.properties.payment_method || 'N/A'}</td>
                   <td>{sale.properties.billing_email || 'N/A'}</td>
+                  <td colSpan="3">
+                    {sale.properties.productNames && sale.properties.productNames.length > 0 ? (
+                      <table className="nested-table">
+                        <tbody>
+                          {sale.properties.productNames.map((product, index) => (
+                            <tr key={index}>
+                              <td>{product}</td>
+                              <td>{sale.properties.productQuantities[index] || 'N/A'}</td>
+                              <td>{sale.properties.productSubtotals[index] ? `${sale.properties.productSubtotals[index]} CFA` : 'N/A'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    ) : (
+                      'N/A'
+                    )}
+                  </td>
+                  <td>{sale.properties.orderTotal || 'N/A'}</td>
                 </tr>
               ))}
             </tbody>
@@ -551,6 +577,7 @@ function ProfileDetail() {
       )}
     </div>
   );
+  
 
   return (
     <div className="profile-detail">
@@ -591,3 +618,76 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
 }
 
 export default ProfileDetail;
+
+
+
+
+
+
+
+// const renderSales = () => (
+//   <div>
+//     <h2>Sales</h2>
+//     {sales.length === 0 ? (
+//       <p>No sales found.</p>
+//     ) : (
+//       <div>
+//         <table>
+//           <thead>
+//             <tr>
+//               <th>Sale ID</th>
+//               <th>Event Type</th>
+//               <th>Time</th>
+//               <th>Order Number</th>
+//               <th>Order Date</th>
+//               <th>Order Total</th>
+//               <th>Payment Method</th>
+//               <th>Billing First Name</th>
+//               <th>Billing Last Name</th>
+//               <th>Billing Email</th>
+//               <th>Products</th>
+//               <th>Quantities</th>
+//               <th>Subtotals</th>
+//             </tr>
+//           </thead>
+//           <tbody>
+//             {getPagedData(sales, salesPage).map((sale) => (
+//               <tr key={sale.itemId}>
+//                 <td>{sale.itemId}</td>
+//                 <td>{sale.eventType}</td>
+//                 <td>{new Date(sale.timeStamp).toLocaleString()}</td>
+//                 <td>{sale.properties.orderNumber || 'N/A'}</td>
+//                 <td>{sale.properties.orderDate || 'N/A'}</td>
+//                 <td>{sale.properties.orderTotal || 'N/A'}</td>
+//                 <td>{sale.properties.paymentMethod || 'N/A'}</td>
+//                 <td>{sale.properties.billing_first_name || 'N/A'}</td>
+//                 <td>{sale.properties.billing_last_name || 'N/A'}</td>
+//                 <td>{sale.properties.billing_email || 'N/A'}</td>
+//                 <td>
+//                   {sale.properties.productNames && sale.properties.productNames.length > 0
+//                     ? sale.properties.productNames.join(', ')
+//                     : 'N/A'}
+//                 </td>
+//                 <td>
+//                   {sale.properties.productQuantities && sale.properties.productQuantities.length > 0
+//                     ? sale.properties.productQuantities.join(', ')
+//                     : 'N/A'}
+//                 </td>
+//                 <td>
+//                   {sale.properties.productSubtotals && sale.properties.productSubtotals.length > 0
+//                     ? sale.properties.productSubtotals.map(subtotal => `${subtotal} CFA`).join(', ')
+//                     : 'N/A'}
+//                 </td>
+//               </tr>
+//             ))}
+//           </tbody>
+//         </table>
+//         <Pagination
+//           currentPage={salesPage}
+//           totalPages={salesTotalPages}
+//           onPageChange={setSalesPage}
+//         />
+//       </div>
+//     )}
+//   </div>
+// );

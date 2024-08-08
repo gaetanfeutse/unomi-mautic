@@ -200,3 +200,23 @@
   background-color: #ddd;
   color: black;
 }
+/* Apply styles to the nested table */
+.nested-table {
+  border-collapse: collapse;
+  width: 100%; /* Adjust width as needed */
+}
+
+.nested-table td {
+  border: none; /* Remove table cell borders */
+  padding: 8px; /* Adjust padding as needed */
+  background-color: transparent; /* Make background transparent */
+}
+
+/* Optional: Add styles for row background color to make it clearer */
+.nested-table tr:nth-child(even) {
+  background-color: rgba(0, 0, 0, 0.05); /* Light grey background for even rows */
+}
+
+.nested-table tr:nth-child(odd) {
+  background-color: transparent; /* Transparent background for odd rows */
+}
