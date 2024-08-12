@@ -32,7 +32,15 @@ function ProfileList() {
         })
       });
       const data = await response.json();
-      setProfiles(data.list);
+      
+      // Sort profiles by the "Last Updated" timestamp in descending order
+      const sortedProfiles = data.list.sort((a, b) => {
+        const lastUpdatedA = new Date(a.systemProperties?.lastUpdated || 0);
+        const lastUpdatedB = new Date(b.systemProperties?.lastUpdated || 0);
+        return lastUpdatedB - lastUpdatedA;
+      });
+
+      setProfiles(sortedProfiles);
     } catch (error) {
       console.error('Error fetching profiles:', error);
     }
@@ -271,10 +279,6 @@ function ProfileList() {
 }
 
 export default ProfileList;
-
-
-
-
 
 
 

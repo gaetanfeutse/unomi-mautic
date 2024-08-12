@@ -532,6 +532,8 @@ function ProfileDetail() {
                 <th>Billing First Name</th>
                 <th>Billing Last Name</th>
                 <th>Billing Email</th>
+                <th>Billing Address</th>
+                <th>Billing City</th>
                 <th>Products</th>
                 <th>Quantities</th>
                 <th>Subtotals</th>
@@ -550,6 +552,8 @@ function ProfileDetail() {
                   <td>{sale.properties.billing_first_name || 'N/A'}</td>
                   <td>{sale.properties.billing_last_name || 'N/A'}</td>
                   <td>{sale.properties.billing_email || 'N/A'}</td>
+                  <td>{sale.properties.billing_address_1 || 'N/A'}</td>
+                  <td>{sale.properties.billing_city || 'N/A'}</td>
                   <td colSpan="3">
                     {sale.properties.productNames && sale.properties.productNames.length > 0 ? (
                       <table className="nested-table">
