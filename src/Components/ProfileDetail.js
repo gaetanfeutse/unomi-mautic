@@ -486,15 +486,19 @@ function ProfileDetail() {
                 <th>Event Type</th>
                 <th>Time</th>
                 <th>Comment</th>
+                <th>email</th>
+                <th>Author</th>
               </tr>
             </thead>
             <tbody>
               {getPagedData(comments, commentsPage).map((comment) => (
                 <tr key={comment.itemId}>
-                  <td>{comment.itemId}</td>
+                  <td>{comment.properties.comment_post_ID}</td>
                   <td>{comment.eventType}</td>
                   <td>{new Date(comment.timeStamp).toLocaleString()}</td>
                   <td>{comment.properties.comment || 'N/A'}</td>
+                  <td>{comment.properties.email || 'N/A'}</td>
+                  <td>{comment.properties.author || 'N/A'}</td>
                 </tr>
               ))}
             </tbody>
@@ -563,7 +567,7 @@ function ProfileDetail() {
                       'N/A'
                     )}
                   </td>
-                  <td>{sale.properties.orderTotal || 'N/A'}</td>
+                <td> <center>{sale.properties.orderTotal || 'N/A'}</center></td>
                 </tr>
               ))}
             </tbody>
