@@ -530,7 +530,7 @@ function ProfileDetail() {
                 <th>Order Date</th>
                 <th>Payment Method</th>
                 <th>TVA</th>
-                <th>Reduction</th>
+                <th>Discount</th>
                 <th>Billing First Name</th>
                 <th>Billing Last Name</th>
                 <th>Billing Email</th>
