@@ -547,7 +547,7 @@ function ProfileDetail() {
                 <tr key={sale.itemId}>
                   <td>{sale.itemId}</td>
                   <td>{sale.properties.orderNumber || 'N/A'}</td>
-                  <td>{sale.properties.phone}</td>
+                  <td>{sale.properties.phone || 'N/A'}</td>
                   <td>{new Date(sale.timeStamp).toLocaleString()}</td>
                   <td>{sale.properties.orderDate || 'N/A'}</td>
                   <td>{sale.properties.paymentMethod || 'N/A'}</td>
