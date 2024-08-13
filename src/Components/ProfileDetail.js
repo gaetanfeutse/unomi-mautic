@@ -525,10 +525,12 @@ function ProfileDetail() {
               <tr>
                 <th>Item ID</th>
                 <th>Order Number</th>
-                <th>Event Type</th>
+                <th>Phone</th>
                 <th>Time</th>
                 <th>Order Date</th>
                 <th>Payment Method</th>
+                <th>TVA</th>
+                <th>Reduction</th>
                 <th>Billing First Name</th>
                 <th>Billing Last Name</th>
                 <th>Billing Email</th>
@@ -545,10 +547,12 @@ function ProfileDetail() {
                 <tr key={sale.itemId}>
                   <td>{sale.itemId}</td>
                   <td>{sale.properties.orderNumber || 'N/A'}</td>
-                  <td>{sale.eventType}</td>
+                  <td>{sale.properties.phone}</td>
                   <td>{new Date(sale.timeStamp).toLocaleString()}</td>
                   <td>{sale.properties.orderDate || 'N/A'}</td>
                   <td>{sale.properties.paymentMethod || 'N/A'}</td>
+                  <td>{sale.properties.tva || 'N/A'}</td>
+                  <td>{`-${sale.properties.remise}` || 'N/A'}</td>
                   <td>{sale.properties.billing_first_name || 'N/A'}</td>
                   <td>{sale.properties.billing_last_name || 'N/A'}</td>
                   <td>{sale.properties.billing_email || 'N/A'}</td>
