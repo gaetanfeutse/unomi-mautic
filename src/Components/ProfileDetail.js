@@ -551,7 +551,7 @@ function ProfileDetail() {
                   <td>{new Date(sale.timeStamp).toLocaleString()}</td>
                   <td>{sale.properties.orderDate || 'N/A'}</td>
                   <td>{sale.properties.paymentMethod || 'N/A'}</td>
-                  <td>{sale.properties.tva || 'N/A'}</td>
+                  <td>{ `${sale.properties.tva}` || 'N/A'}</td>
                   <td>{`-${sale.properties.remise}` || 'N/A'}</td>
                   <td>{sale.properties.billing_first_name || 'N/A'}</td>
                   <td>{sale.properties.billing_last_name || 'N/A'}</td>
