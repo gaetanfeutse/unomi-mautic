@@ -230,6 +230,36 @@ function ProfileDetail() {
 
   const ITEMS_PER_PAGE = 10;
 
+  const calculateTotalSales = () => {
+    return sales.reduce((total, sale) => {
+      const orderTotal = sale.properties.orderTotal ? parseFloat(sale.properties.orderTotal.replace(/,/g, '')) : 0;
+      return total + orderTotal;
+    }, 0);
+  };
+
+  const calculateTotalProducts = (quantities) => {
+    return quantities.reduce((total, quantity) => total + Number(quantity), 0);
+  };
+
+  const calculateTotalOrders = (sales) => {
+    return sales.length;
+  };  
+
+  const calculateTotalProductsAll = (sales) => {
+    return sales.reduce((total, sale) => {
+      // Assurez-vous que les propriétés des produits existent
+      const quantities = sale.properties.productQuantities || [];
+      return total + quantities.reduce((sum, quantity) => sum + Number(quantity), 0);
+    }, 0);
+  };
+
+  const calculateAverageSpending = () => {
+    const totalSales = calculateTotalSales();
+    const totalOrders = calculateTotalOrders(sales);
+    return totalOrders === 0 ? 0 : totalSales / totalOrders;
+  };
+  
+  
   useEffect(() => {
     const fetchProfileDetails = async () => {
       try {
@@ -520,6 +550,14 @@ function ProfileDetail() {
         <p>No sales found.</p>
       ) : (
         <div>
+          {/* Afficher le nombre total de commandes ici */}
+          <p><strong>Total Number of Orders:</strong> {calculateTotalOrders(sales)}</p>
+           {/* Afficher la somme totale des produits ici */}
+          <p><strong>Total Number of Products:</strong> {calculateTotalProductsAll(sales)}</p>
+          {/* Afficher la somme totale ici */}
+          <p><strong>Total Sales Amount:</strong> {calculateTotalSales().toLocaleString('fr-FR')} CFA</p>
+         {/* Afficher la valeur moyenne des dépenses ici */}
+         <p><strong>Average Spending per Order:</strong> {calculateAverageSpending().toLocaleString('fr-FR')} CFA</p>
           <table>
             <thead>
               <tr>
@@ -532,10 +570,13 @@ function ProfileDetail() {
                 <th>Billing First Name</th>
                 <th>Billing Last Name</th>
                 <th>Billing Email</th>
+                <th>Billing Address</th>
+                <th>Billing City</th>
                 <th>Products</th>
                 <th>Quantities</th>
                 <th>Subtotals</th>
                 <th>Order Total</th>
+                <th>Total Products</th>
               </tr>
             </thead>
             <tbody>
@@ -550,6 +591,8 @@ function ProfileDetail() {
                   <td>{sale.properties.billing_first_name || 'N/A'}</td>
                   <td>{sale.properties.billing_last_name || 'N/A'}</td>
                   <td>{sale.properties.billing_email || 'N/A'}</td>
+                  <td>{sale.properties.billing_address_1 || 'N/A'}</td>
+                  <td>{sale.properties.billing_city || 'N/A'}</td>
                   <td colSpan="3">
                     {sale.properties.productNames && sale.properties.productNames.length > 0 ? (
                       <table className="nested-table">
@@ -568,6 +611,7 @@ function ProfileDetail() {
                     )}
                   </td>
                 <td> <center>{sale.properties.orderTotal || 'N/A'}</center></td>
+                <td>{calculateTotalProducts(sale.properties.productQuantities || [])}</td>
                 </tr>
               ))}
             </tbody>
