@@ -1,0 +1,115 @@
+/* Styles for ProfilesWithSales component */
+
+/* General styles */
+.profiles-with-sales {
+    font-family: Arial, sans-serif;
+    color: #333;
+    margin: 20px;
+  }
+  
+  .title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  .loading, .error {
+    font-size: 18px;
+    font-weight: bold;
+    color: #e74c3c;
+    text-align: center;
+  }
+  
+  .filters, .sorting {
+    margin-bottom: 20px;
+  }
+  
+  .filter-label, .sort-label {
+    display: block;
+    margin-bottom: 10px;
+  }
+  
+  .filter-input, .sort-select {
+    padding: 8px;
+    margin-top: 5px;
+    width: 100%;
+    max-width: 300px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .filter-button, .sort-select {
+    padding: 10px 15px;
+    margin-top: 10px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #3498db;
+    color: #fff;
+  }
+  
+  .filter-button:hover, .sort-select:hover {
+    background-color: #2980b9;
+  }
+  
+  .sorting {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .sort-select {
+    width: auto;
+  }
+  
+  .profiles-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    table-layout: auto;
+  }
+  
+  .profiles-table th, .profiles-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .profiles-table th {
+    background-color: #f4f4f4;
+  }
+  
+  .profiles-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .pagination {
+    text-align: center;
+  }
+  
+  .pagination-button {
+    display: inline-block;
+    padding: 10px 15px;
+    margin: 0 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    cursor: pointer;
+  }
+  
+  .pagination-button.active {
+    background-color: #3498db;
+    color: #fff;
+  }
+  
+  .pagination-button:hover {
+    background-color: #f1f1f1;
+  }
+  
+  @media (max-width: 768px) {
+    .filter-input, .sort-select {
+      width: 100%;
+    }
+  }
+  

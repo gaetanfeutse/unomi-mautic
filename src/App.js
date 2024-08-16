@@ -11,6 +11,7 @@ import RuleList from './Components/RuleList';
 import CreateRule from './Components/CreateRule';
 import ProfileDetail from './Components/ProfileDetail';
 import CreateScopeComponent from './Components/CreateScopeComponent';
+import ProfilesWithSales from './Components/ProfilesWithSales';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
             <Route path="/profiles/:id" element={<ProfileDetails />} />
             <Route path="/segment/:segmentId" element={<SegmentDetails />} />
             <Route path="/create-scopes" element={<CreateScopeComponent />}/>
+            <Route path="/profiles-with-sales" element={<ProfilesWithSales />}/>
           </Routes>
         </MainContent>
       </div>
