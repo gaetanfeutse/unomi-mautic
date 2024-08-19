@@ -1,213 +1,3 @@
-// import '../ProfileDetail.css';
-// import React, { useState, useEffect } from 'react';
-// import { useParams } from 'react-router-dom';
-
-// function ProfileDetail() {
-//   const { id } = useParams();
-//   const [profileDetails, setProfileDetails] = useState([]);
-
-//   useEffect(() => {
-//     const fetchProfileDetails = async () => {
-//       try {
-//         const response = await fetch('https://cdp.qilinsa.com:9443/cxs/events/search', {
-//           method: 'POST',
-//           headers: {
-//             'Content-Type': 'application/json',
-//             'Authorization': 'Basic ' + btoa('karaf:karaf')
-//           },
-//           body: JSON.stringify({
-//             offset: 0,
-//             condition: {
-//               type: 'profilePropertyCondition',
-//               parameterValues: {
-//                 propertyName: 'profileId',
-//                 comparisonOperator: 'equals',
-//                 propertyValue: id
-//               }
-//             }
-//           })
-//         });
-//         const data = await response.json();
-//         setProfileDetails(data.list);
-//       } catch (error) {
-//         console.error('Error fetching profile details:', error);
-//       }
-//     };
-
-//     fetchProfileDetails();
-//   }, [id]);
-
-//   return (
-//     <div className="profile-detail">
-//       <h2>Profile Details</h2>
-//       {profileDetails.length === 0 ? (
-//         <p>No profile details found.</p>
-//       ) : (
-//         <table>
-//           <thead>
-//             <tr>
-//               <th>Event Type</th>
-//               <th>Time</th>
-//               <th>Session ID</th>
-//               <th>Destination URL</th>
-//               <th>Page ID</th>
-//               <th>Page Path</th>
-//               <th>Page Name</th>
-//             </tr>
-//           </thead>
-//           <tbody>
-//             {profileDetails.map((detail) => (
-//               <tr key={detail.timeStamp}>
-//                 <td>{detail.eventType}</td>
-//                 <td>{new Date(detail.timeStamp).toLocaleString()}</td>
-//                 <td>{detail.sessionId}</td>
-//                 <td>{detail.target?.properties?.pageInfo?.destinationURL || 'N/A'}</td>
-//                 <td>{detail.target?.properties?.pageInfo?.pageID || 'N/A'}</td>
-//                 <td>{detail.target?.properties?.pageInfo?.pagePath || 'N/A'}</td>
-//                 <td>{detail.target?.properties?.pageInfo?.pageName || 'N/A'}</td>
-//               </tr>
-//             ))}
-//           </tbody>
-//         </table>
-//       )}
-//     </div>
-//   );
-// }
-
-// export default ProfileDetail;
-
-
-
-
-// import '../ProfileDetail.css';
-// import React, { useState, useEffect } from 'react';
-// import { useParams } from 'react-router-dom';
-
-// function ProfileDetail() {
-//   const { id } = useParams();
-//   const [profileDetails, setProfileDetails] = useState([]);
-//   const [sessionDetails, setSessionDetails] = useState([]);
-
-//   useEffect(() => {
-//     const fetchProfileDetails = async () => {
-//       try {
-//         const response = await fetch('https://cdp.qilinsa.com:9443/cxs/events/search', {
-//           method: 'POST',
-//           headers: {
-//             'Content-Type': 'application/json',
-//             'Authorization': 'Basic ' + btoa('karaf:karaf')
-//           },
-//           body: JSON.stringify({
-//             offset: 0,
-//             condition: {
-//               type: 'profilePropertyCondition',
-//               parameterValues: {
-//                 propertyName: 'profileId',
-//                 comparisonOperator: 'equals',
-//                 propertyValue: id
-//               }
-//             }
-//           })
-//         });
-//         const data = await response.json();
-//         setProfileDetails(data.list || []);
-//       } catch (error) {
-//         console.error('Error fetching profile details:', error);
-//       }
-//     };
-
-//     const fetchSessionDetails = async () => {
-//       try {
-//         const response = await fetch(`https://cdp.qilinsa.com:9443/cxs/profiles/${id}/sessions`, {
-//           method: 'GET',
-//           headers: {
-//             'Content-Type': 'application/json',
-//             'Authorization': 'Basic ' + btoa('karaf:karaf')
-//           }
-//         });
-//         const data = await response.json();
-//         setSessionDetails(data.list || []);
-//       } catch (error) {
-//         console.error('Error fetching session details:', error);
-//       }
-//     };
-
-//     fetchProfileDetails();
-//     fetchSessionDetails();
-//   }, [id]);
-
-//   return (
-//     <div className="profile-detail">
-//       <h2>Profile Details</h2>
-//       {profileDetails.length === 0 ? (
-//         <p>No profile details found.</p>
-//       ) : (
-//         <table>
-//           <thead>
-//             <tr>
-//               <th>Profile ID</th>
-//               <th>Event Type</th>
-//               <th>Time</th>
-//               <th>Session ID</th>
-//               <th>Destination URL</th>
-//               <th>Page ID</th>
-//               <th>Page Path</th>
-//               <th>Page Name</th>
-//             </tr>
-//           </thead>
-//           <tbody>
-//             {profileDetails.map((detail) => (
-//               <tr key={detail.timeStamp}>
-//                 <td>{detail.profileId}</td>
-//                 <td>{detail.eventType}</td>
-//                 <td>{new Date(detail.timeStamp).toLocaleString()}</td>
-//                 <td>{detail.sessionId}</td>
-//                 <td>{detail.target?.properties?.pageInfo?.destinationURL || 'N/A'}</td>
-//                 <td>{detail.target?.properties?.pageInfo?.pageID || 'N/A'}</td>
-//                 <td>{detail.target?.properties?.pageInfo?.pagePath || 'N/A'}</td>
-//                 <td>{detail.target?.properties?.pageInfo?.pageName || 'N/A'}</td>
-//               </tr>
-//             ))}
-//           </tbody>
-//         </table>
-//       )}
-
-//       <h2>Session Details</h2>
-//       {sessionDetails.length === 0 ? (
-//         <p>No session details found.</p>
-//       ) : (
-//         <table>
-//           <thead>
-//             <tr>
-//               <th>Session ID</th>
-//               <th>Operating System</th>
-//               <th>Device Category</th>
-//               <th>User Agent</th>
-//               <th>Country</th>
-//               <th>Duration (minutes)</th>
-//             </tr>
-//           </thead>
-//           <tbody>
-//             {sessionDetails.map((session) => (
-//               <tr key={session.itemId}>
-//                 <td>{session.itemId}</td>
-//                 <td>{session.properties.operatingSystemFamily || 'N/A'}</td>
-//                 <td>{session.properties.deviceCategory || 'N/A'}</td>
-//                 <td>{session.properties.userAgentName || 'N/A'}</td>
-//                 <td>{session.properties.countryAndCity || 'N/A'}</td>
-//                 <td>{(session.duration / 60000).toFixed(2)}</td> {/* Convert milliseconds to minutes */}
-//               </tr>
-//             ))}
-//           </tbody>
-//         </table>
-//       )}
-//     </div>
-//   );
-// }
-
-// export default ProfileDetail;
-
-
 import '../ProfileDetail.css';
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
@@ -227,7 +17,9 @@ function ProfileDetail() {
   const [commentsTotalPages, setCommentsTotalPages] = useState(0);
   const [salesTotalPages, setSalesTotalPages] = useState(0);
   const [activeSection, setActiveSection] = useState('profile');
-
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [frequency, setFrequency] = useState(null);
   const ITEMS_PER_PAGE = 10;
 
   const calculateTotalSales = () => {
@@ -245,6 +37,52 @@ function ProfileDetail() {
     return sales.length;
   };  
 
+
+  // Calculating the frequence of purchase
+
+  const calculateSaleFrequency = () => {
+    // Step 1: Filter sales within the user-selected date range
+    const filteredSales = sales.filter(sale => {
+        const saleDate = new Date(sale.timeStamp);
+        return saleDate >= new Date(startDate) && saleDate <= new Date(endDate);
+    });
+
+    if (filteredSales.length > 0) {
+        // Step 2: Sort filteredSales by date
+        filteredSales.sort((a, b) => new Date(a.timeStamp) - new Date(b.timeStamp));
+
+        // Step 3: Get the unique days where sales occurred
+        const uniqueSaleDays = Array.from(new Set(filteredSales.map(sale =>
+            new Date(sale.timeStamp).toDateString()
+        )));
+
+        if (uniqueSaleDays.length > 1) {
+            // Step 4: Calculate the number of days between the first and last unique sale day
+            const firstSaleDate = new Date(uniqueSaleDays[0]);
+            const lastSaleDate = new Date(uniqueSaleDays[uniqueSaleDays.length - 1]);
+            const totalDays = (lastSaleDate - firstSaleDate) / (1000 * 60 * 60 * 24)+ 1;
+
+            console.log(totalDays);
+            console.log(uniqueSaleDays.length);
+            // Step 5: Calculate the frequency
+            const frequencyValue = totalDays / (uniqueSaleDays.length - 1);
+             
+            console.log(frequencyValue);
+            // Custom rounding logic
+            const roundedFrequency = (frequencyValue % 1) >= 0.5
+                ? Math.ceil(frequencyValue)
+                : Math.floor(frequencyValue);
+
+            setFrequency(roundedFrequency);
+        } else {
+            setFrequency('N/A');
+        }
+    } else {
+        setFrequency('N/A');
+    }
+};
+
+  
   const calculateTotalProductsAll = (sales) => {
     return sales.reduce((total, sale) => {
       // Assurez-vous que les propriétés des produits existent
@@ -558,6 +396,29 @@ function ProfileDetail() {
           <p><strong>Total Sales Amount:</strong> {calculateTotalSales().toLocaleString('fr-FR')} CFA</p>
          {/* Afficher la valeur moyenne des dépenses ici */}
          <p><strong>Average Spending per Order:</strong> {calculateAverageSpending().toLocaleString('fr-FR')} CFA</p>
+         <div className="date-interval">
+            <h3>Calculate purchase Frequency</h3>
+            <label>
+              Start Date:
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+            </label>
+            <label>
+              End Date:
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
+            </label>
+            <button onClick={calculateSaleFrequency}>Calculate Frequency</button>
+            {frequency !== null && (
+              <p>Purchase Every {frequency} days</p>
+            )}
+          </div>
           <table>
             <thead>
               <tr>
@@ -670,76 +531,3 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
 }
 
 export default ProfileDetail;
-
-
-
-
-
-
-
-// const renderSales = () => (
-//   <div>
-//     <h2>Sales</h2>
-//     {sales.length === 0 ? (
-//       <p>No sales found.</p>
-//     ) : (
-//       <div>
-//         <table>
-//           <thead>
-//             <tr>
-//               <th>Sale ID</th>
-//               <th>Event Type</th>
-//               <th>Time</th>
-//               <th>Order Number</th>
-//               <th>Order Date</th>
-//               <th>Order Total</th>
-//               <th>Payment Method</th>
-//               <th>Billing First Name</th>
-//               <th>Billing Last Name</th>
-//               <th>Billing Email</th>
-//               <th>Products</th>
-//               <th>Quantities</th>
-//               <th>Subtotals</th>
-//             </tr>
-//           </thead>
-//           <tbody>
-//             {getPagedData(sales, salesPage).map((sale) => (
-//               <tr key={sale.itemId}>
-//                 <td>{sale.itemId}</td>
-//                 <td>{sale.eventType}</td>
-//                 <td>{new Date(sale.timeStamp).toLocaleString()}</td>
-//                 <td>{sale.properties.orderNumber || 'N/A'}</td>
-//                 <td>{sale.properties.orderDate || 'N/A'}</td>
-//                 <td>{sale.properties.orderTotal || 'N/A'}</td>
-//                 <td>{sale.properties.paymentMethod || 'N/A'}</td>
-//                 <td>{sale.properties.billing_first_name || 'N/A'}</td>
-//                 <td>{sale.properties.billing_last_name || 'N/A'}</td>
-//                 <td>{sale.properties.billing_email || 'N/A'}</td>
-//                 <td>
-//                   {sale.properties.productNames && sale.properties.productNames.length > 0
-//                     ? sale.properties.productNames.join(', ')
-//                     : 'N/A'}
-//                 </td>
-//                 <td>
-//                   {sale.properties.productQuantities && sale.properties.productQuantities.length > 0
-//                     ? sale.properties.productQuantities.join(', ')
-//                     : 'N/A'}
-//                 </td>
-//                 <td>
-//                   {sale.properties.productSubtotals && sale.properties.productSubtotals.length > 0
-//                     ? sale.properties.productSubtotals.map(subtotal => `${subtotal} CFA`).join(', ')
-//                     : 'N/A'}
-//                 </td>
-//               </tr>
-//             ))}
-//           </tbody>
-//         </table>
-//         <Pagination
-//           currentPage={salesPage}
-//           totalPages={salesTotalPages}
-//           onPageChange={setSalesPage}
-//         />
-//       </div>
-//     )}
-//   </div>
-// );
