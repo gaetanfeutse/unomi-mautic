@@ -41,27 +41,35 @@ function ProfileDetail() {
   };  
 
 //function to filter sales on a particular periode
-  const filterSalesByDateRange = () => {
-    const filteredSales = sales.filter((sale) => {
-      const saleDate = new Date(sale.timeStamp);
-      const start = startDate ? new Date(startDate) : null;
-      const end = endDate ? new Date(endDate) : null;
-  
-      if (start && end) {
-        return saleDate >= start && saleDate <= end;
-      } else if (start) {
-        return saleDate >= start;
-      } else if (end) {
-        return saleDate <= end;
-      } else {
-        return true; // If no date is selected, return all sales
-      }
-    });
-  
+const filterSalesByDateRange = () => {
+  const filteredSales = sales.filter((sale) => {
+    const saleDate = new Date(sale.timeStamp);
+    const saleDateOnly = new Date(saleDate.getFullYear(), saleDate.getMonth(), saleDate.getDate());
+    
+    const start = startDate ? new Date(startDate) : null;
+    const end = endDate ? new Date(endDate) : null;
+    const startDateOnly = start ? new Date(start.getFullYear(), start.getMonth(), start.getDate()) : null;
+    const endDateOnly = end ? new Date(end.getFullYear(), end.getMonth(), end.getDate()) : null;
+
+    if (startDateOnly && endDateOnly) {
+      return saleDateOnly >= startDateOnly && saleDateOnly <= endDateOnly;
+    } else if (startDateOnly) {
+      return saleDateOnly >= startDateOnly;
+    } else if (endDateOnly) {
+      return saleDateOnly <= endDateOnly;
+    } else {
+      return true; // If no date is selected, return all sales
+    }
+  });
+
+  if (filteredSales.length === 0) {
+    // Display error if no sales match the selected date range
+    console.error("No sales found for the selected date range.");
+  } else {
     setSales(filteredSales);
     setSalesTotalPages(Math.ceil(filteredSales.length / ITEMS_PER_PAGE));
-  };
-  
+  }
+};
 
 
   // Calculating the frequence of purchase
