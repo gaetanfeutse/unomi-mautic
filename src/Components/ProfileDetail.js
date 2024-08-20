@@ -1,6 +1,9 @@
 import '../ProfileDetail.css';
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+
 
 function ProfileDetail() {
   const { id } = useParams();
@@ -36,6 +39,29 @@ function ProfileDetail() {
   const calculateTotalOrders = (sales) => {
     return sales.length;
   };  
+
+//function to filter sales on a particular periode
+  const filterSalesByDateRange = () => {
+    const filteredSales = sales.filter((sale) => {
+      const saleDate = new Date(sale.timeStamp);
+      const start = startDate ? new Date(startDate) : null;
+      const end = endDate ? new Date(endDate) : null;
+  
+      if (start && end) {
+        return saleDate >= start && saleDate <= end;
+      } else if (start) {
+        return saleDate >= start;
+      } else if (end) {
+        return saleDate <= end;
+      } else {
+        return true; // If no date is selected, return all sales
+      }
+    });
+  
+    setSales(filteredSales);
+    setSalesTotalPages(Math.ceil(filteredSales.length / ITEMS_PER_PAGE));
+  };
+  
 
 
   // Calculating the frequence of purchase
@@ -351,7 +377,7 @@ function ProfileDetail() {
             <thead>
               <tr>
                 <th>Comment ID</th>
-                <th>Event Type</th>
+                <th>Rating</th>
                 <th>Time</th>
                 <th>Comment</th>
                 <th>email</th>
@@ -362,10 +388,10 @@ function ProfileDetail() {
               {getPagedData(comments, commentsPage).map((comment) => (
                 <tr key={comment.itemId}>
                   <td>{comment.properties.comment_post_ID}</td>
-                  <td>{comment.eventType}</td>
+                  <td>{comment.properties.rating}</td>
                   <td>{new Date(comment.timeStamp).toLocaleString()}</td>
                   <td>{comment.properties.comment || 'N/A'}</td>
-                  <td>{comment.properties.email || 'N/A'}</td>
+                  <td>{comment.properties.email1 || 'N/A'}</td>
                   <td>{comment.properties.author || 'N/A'}</td>
                 </tr>
               ))}
@@ -419,6 +445,33 @@ function ProfileDetail() {
               <p>Purchase Every {frequency} days</p>
             )}
           </div>
+
+          <div className="date-interval">
+          <h3>Filter the sale</h3>
+  <label>
+    Start Date:
+    <DatePicker
+      selected={startDate ? new Date(startDate) : null}
+      onChange={(date) => setStartDate(date)}
+      dateFormat="yyyy-MM-dd"
+      isClearable
+      className="date-input"
+    />
+  </label>
+  <label>
+    End Date:
+    <DatePicker
+      selected={endDate ? new Date(endDate) : null}
+      onChange={(date) => setEndDate(date)}
+      dateFormat="yyyy-MM-dd"
+      isClearable
+      className="date-input"
+    />
+  </label>
+  <button onClick={filterSalesByDateRange}>Filter</button>
+</div>
+
+
           <table>
             <thead>
               <tr>

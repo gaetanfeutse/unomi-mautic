@@ -195,3 +195,54 @@
   font-weight: bold;
   margin-left: 10px; /* Space between the button and frequency text */
 }
+
+
+
+
+
+/* css for the sale filter */
+.date-interval {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* Space between elements */
+  margin-top: 20px; /* Space from the above content */
+}
+
+.date-interval label {
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.date-input {
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  /* Ensures DatePicker styling matches */
+}
+
+.date-interval button {
+  padding: 7px 15px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.date-interval button:hover {
+  background-color: #45a049;
+}
+
+.date-interval p {
+  font-weight: bold;
+  margin-left: 10px; /* Space between the button and frequency text */
+}
+
+
+
+
+
