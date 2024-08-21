@@ -62,6 +62,26 @@
   .sort-select {
     width: auto;
   }
+
+  .count-message {
+    margin-bottom: 20px;
+    padding: 10px;
+    font-size: 18px;
+    text-align: center;
+    border-radius: 4px;
+  }
+  
+  .count-message.success {
+    color: #28a745;
+    background-color: #e3fcef;
+    border: 1px solid #28a745;
+  }
+  
+  .count-message.error {
+    color: #dc3545;
+    background-color: #f8d7da;
+    border: 1px solid #dc3545;
+  }
   
   .profiles-table {
     width: 100%;
