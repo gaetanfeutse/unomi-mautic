@@ -22,6 +22,8 @@ function ProfileDetail() {
   const [activeSection, setActiveSection] = useState('profile');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [startDate1, setStartDate1] = useState('');
+  const [endDate1, setEndDate1] = useState('');
   const [frequency, setFrequency] = useState(null);
   const ITEMS_PER_PAGE = 10;
 
@@ -461,8 +463,8 @@ const filterSalesByDateRange = () => {
   <label>
     Start Date:
     <DatePicker
-      selected={startDate ? new Date(startDate) : null}
-      onChange={(date) => setStartDate(date)}
+      selected={startDate1 ? new Date(startDate1) : null}
+      onChange={(date) => setStartDate1(date)}
       dateFormat="yyyy-MM-dd"
       isClearable
       className="date-input"
@@ -471,8 +473,8 @@ const filterSalesByDateRange = () => {
   <label>
     End Date:
     <DatePicker
-      selected={endDate ? new Date(endDate) : null}
-      onChange={(date) => setEndDate(date)}
+      selected={endDate1 ? new Date(endDate1) : null}
+      onChange={(date) => setEndDate1(date)}
       dateFormat="yyyy-MM-dd"
       isClearable
       className="date-input"
