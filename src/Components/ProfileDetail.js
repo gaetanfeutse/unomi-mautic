@@ -22,8 +22,8 @@ function ProfileDetail() {
   const [activeSection, setActiveSection] = useState('profile');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [startDate1, setStartDate1] = useState('');
-  const [endDate1, setEndDate1] = useState('');
+  const [startDatee, setStartDatee] = useState('');
+  const [endDatee, setEndDatee] = useState('');
   const [frequency, setFrequency] = useState(null);
   const ITEMS_PER_PAGE = 10;
 
@@ -46,8 +46,8 @@ function ProfileDetail() {
 const filterSalesByDateRange = () => {
   const filteredSales = sales.filter((sale) => {
     const saleDate = new Date(sale.timeStamp);
-    const start = startDate ? new Date(startDate) : null;
-    const end = endDate ? new Date(endDate) : null;
+    const start = startDatee ? new Date(startDatee) : null;
+    const end = endDatee ? new Date(endDatee) : null;
 
     // Normalize the dates to ignore the time component
     const saleDateOnly = new Date(saleDate.getFullYear(), saleDate.getMonth(), saleDate.getDate());
@@ -463,8 +463,8 @@ const filterSalesByDateRange = () => {
   <label>
     Start Date:
     <DatePicker
-      selected={startDate1 ? new Date(startDate1) : null}
-      onChange={(date) => setStartDate1(date)}
+      selected={startDatee ? new Date(startDatee) : null}
+      onChange={(date) => setStartDatee(date)}
       dateFormat="yyyy-MM-dd"
       isClearable
       className="date-input"
@@ -473,8 +473,8 @@ const filterSalesByDateRange = () => {
   <label>
     End Date:
     <DatePicker
-      selected={endDate1 ? new Date(endDate1) : null}
-      onChange={(date) => setEndDate1(date)}
+      selected={endDatee ? new Date(endDatee) : null}
+      onChange={(date) => setEndDatee(date)}
       dateFormat="yyyy-MM-dd"
       isClearable
       className="date-input"
@@ -500,6 +500,8 @@ const filterSalesByDateRange = () => {
                 <th>Billing Email</th>
                 <th>Billing Address</th>
                 <th>Billing City</th>
+                <th>Expédition</th>
+                <th>shipping city</th>
                 <th>Products</th>
                 <th>Quantities</th>
                 <th>Subtotals</th>
@@ -523,6 +525,8 @@ const filterSalesByDateRange = () => {
                   <td>{sale.properties.billing_email || 'N/A'}</td>
                   <td>{sale.properties.billing_address_1 || 'N/A'}</td>
                   <td>{sale.properties.billing_city || 'N/A'}</td>
+                  <td>{sale.properties.expedition|| 'N/A'}</td>
+                  <td>{sale.properties.shipping_city|| 'N/A'}</td>
                   <td colSpan="3">
                     {sale.properties.productNames && sale.properties.productNames.length > 0 ? (
                       <table className="nested-table">
