@@ -107,7 +107,7 @@ const filterSalesByDateRange = () => {
              
             console.log(frequencyValue);
             // Custom rounding logic
-            const roundedFrequency = (frequencyValue % 1) >= 0.5
+            const roundedFrequency = (frequencyValue % 1) >= 0.4
                 ? Math.ceil(frequencyValue)
                 : Math.floor(frequencyValue);
 
