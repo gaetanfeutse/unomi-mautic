@@ -37,31 +37,31 @@ const UnomiMauticSync = () => {
     // Function to send profile data to Mautic
     const sendProfileToMautic = async (profile) => {
       const profileData = {
-        firstname: profile.properties.firstName || 'N/A',
-        lastname: profile.properties.lastName || 'N/A',
-        email: profile.properties.email || 'N/A'
-        // orderNumber: profile.properties.orderNumber,
-        // orderDate: profile.properties.orderDate,
-        // orderTotal: profile.properties.orderTotal,
-        // paymentMethod: profile.properties.paymentMethod,
-        // productNames: profile.properties.productNames.join(', '),
-        // couponCode: profile.properties.couponCode,
-        // woocommerceCartNonce: profile.properties.woocommerceCartNonce,
-        // total: profile.properties.total,
-        // billing_state: profile.properties.billing_state,
-        // billing_address_1: profile.properties.billing_address_1,
-        // billing_country: profile.properties.billing_country,
-        // billing_city: profile.properties.billing_city,
-        // billing_company: profile.properties.billing_company,
-        // phone: profile.properties.phone,
-        // tva: profile.properties.tva,
-        // expedition: profile.properties.expedition,
-        // remise: profile.properties.remise
+        firstname: profile.properties.billing_first_name,
+        lastname: profile.properties.billing_last_name,
+        email: profile.properties.billing_email,
+        orderNumber: profile.properties.orderNumber,
+        orderDate: profile.properties.orderDate,
+        orderTotal: profile.properties.orderTotal,
+        paymentMethod: profile.properties.paymentMethod,
+        productNames: profile.properties.productNames.join(', '),
+        couponCode: profile.properties.couponCode,
+        woocommerceCartNonce: profile.properties.woocommerceCartNonce,
+        total: profile.properties.total,
+        billing_state: profile.properties.billing_state,
+        billing_address_1: profile.properties.billing_address_1,
+        billing_country: profile.properties.billing_country,
+        billing_city: profile.properties.billing_city,
+        billing_company: profile.properties.billing_company,
+        phone: profile.properties.phone,
+        tva: profile.properties.tva,
+        expedition: profile.properties.expedition,
+        remise: profile.properties.remise
       };
 
       try {
         console.log(`Sending profile ${profile.itemId} to Mautic...`, profileData);
-        const response = await fetch('api/contacts/new', {  // Note the change here
+        const response = await fetch('https://marketing.qilinsa.com/api/contacts/new', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -85,7 +85,7 @@ const UnomiMauticSync = () => {
       console.log('Starting profile synchronization...');
       const fetchedProfiles = await fetchProfiles();
       const filteredProfiles = fetchedProfiles.filter(
-        (profile) => profile.properties.orderDate && profile.properties.billing_email
+        (profile) => profile.properties.orderDate && profile.properties.email
       );
 
       if (filteredProfiles.length === 0) {
