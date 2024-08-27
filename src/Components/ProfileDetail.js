@@ -22,13 +22,8 @@ function ProfileDetail() {
   const [activeSection, setActiveSection] = useState('profile');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-<<<<<<< HEAD
-  const [startDate1, setStartDate1] = useState('');
-  const [endDate1, setEndDate1] = useState('');
-=======
   const [startDatee, setStartDatee] = useState('');
   const [endDatee, setEndDatee] = useState('');
->>>>>>> gaetan
   const [frequency, setFrequency] = useState(null);
   const ITEMS_PER_PAGE = 10;
 
@@ -468,13 +463,8 @@ const filterSalesByDateRange = () => {
   <label>
     Start Date:
     <DatePicker
-<<<<<<< HEAD
-      selected={startDate1 ? new Date(startDate1) : null}
-      onChange={(date) => setStartDate1(date)}
-=======
       selected={startDatee ? new Date(startDatee) : null}
       onChange={(date) => setStartDatee(date)}
->>>>>>> gaetan
       dateFormat="yyyy-MM-dd"
       isClearable
       className="date-input"
@@ -483,13 +473,8 @@ const filterSalesByDateRange = () => {
   <label>
     End Date:
     <DatePicker
-<<<<<<< HEAD
-      selected={endDate1 ? new Date(endDate1) : null}
-      onChange={(date) => setEndDate1(date)}
-=======
       selected={endDatee ? new Date(endDatee) : null}
       onChange={(date) => setEndDatee(date)}
->>>>>>> gaetan
       dateFormat="yyyy-MM-dd"
       isClearable
       className="date-input"
