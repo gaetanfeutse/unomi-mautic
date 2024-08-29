@@ -39,6 +39,7 @@ function App() {
         </MainContent>
       </div>
       <UnomiMauticSync />
+      {/* <setupProxy /> */}
     </Router>
   );
 }

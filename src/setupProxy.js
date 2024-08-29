@@ -1,5 +1,6 @@
-// src/setupProxy.js
 const { createProxyMiddleware } = require('http-proxy-middleware');
+// import { createProxyMiddleware } from 'http-proxy-middleware';
+// require('node:url').parse(() => { });
 
 module.exports = function(app) {
   app.use(
@@ -8,8 +9,9 @@ module.exports = function(app) {
       target: 'https://marketing.qilinsa.com',
       changeOrigin: true,
       pathRewrite: {
-        '^/api': '', // Remove "/api" from the request path
+        '^/api': '', // This removes the /api prefix when forwarding the request
       },
+      logLevel: 'debug', // Optional: Add this to see logs of the proxy
     })
   );
 };
