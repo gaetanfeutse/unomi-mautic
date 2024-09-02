@@ -37,26 +37,26 @@ const UnomiMauticSync = () => {
     // Function to send profile data to Mautic
     const sendProfileToMautic = async (profile) => {
       const profileData = {
-        firstname: profile.properties.billing_first_name,
-        lastname: profile.properties.billing_last_name,
-        email: profile.properties.billing_email,
-        orderNumber: profile.properties.orderNumber,
-        orderDate: profile.properties.orderDate,
-        orderTotal: profile.properties.orderTotal,
-        paymentMethod: profile.properties.paymentMethod,
-        productNames: profile.properties.productNames.join(', '),
-        couponCode: profile.properties.couponCode,
-        woocommerceCartNonce: profile.properties.woocommerceCartNonce,
-        total: profile.properties.total,
-        billing_state: profile.properties.billing_state,
-        billing_address_1: profile.properties.billing_address_1,
-        billing_country: profile.properties.billing_country,
-        billing_city: profile.properties.billing_city,
-        billing_company: profile.properties.billing_company,
-        phone: profile.properties.phone,
-        tva: profile.properties.tva,
-        expedition: profile.properties.expedition,
-        remise: profile.properties.remise
+        firstname: profile.properties.firstName || 'N/A',
+        lastname: profile.properties.lastName || 'N/A',
+        email: profile.properties.email || 'N/A'
+        // orderNumber: profile.properties.orderNumber,
+        // orderDate: profile.properties.orderDate,
+        // orderTotal: profile.properties.orderTotal,
+        // paymentMethod: profile.properties.paymentMethod,
+        // productNames: profile.properties.productNames.join(', '),
+        // couponCode: profile.properties.couponCode,
+        // woocommerceCartNonce: profile.properties.woocommerceCartNonce,
+        // total: profile.properties.total,
+        // billing_state: profile.properties.billing_state,
+        // billing_address_1: profile.properties.billing_address_1,
+        // billing_country: profile.properties.billing_country,
+        // billing_city: profile.properties.billing_city,
+        // billing_company: profile.properties.billing_company,
+        // phone: profile.properties.phone,
+        // tva: profile.properties.tva,
+        // expedition: profile.properties.expedition,
+        // remise: profile.properties.remise
       };
 
       try {
@@ -85,7 +85,11 @@ const UnomiMauticSync = () => {
       console.log('Starting profile synchronization...');
       const fetchedProfiles = await fetchProfiles();
       const filteredProfiles = fetchedProfiles.filter(
+<<<<<<< HEAD
         (profile) => profile.properties.orderDate && profile.properties.email
+=======
+        (profile) => profile.properties.orderDate && profile.properties.billing_email
+>>>>>>> main
       );
 
       if (filteredProfiles.length === 0) {
@@ -112,7 +116,6 @@ const UnomiMauticSync = () => {
 };
 
 export default UnomiMauticSync;
-
 
 
 
