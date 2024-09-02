@@ -39,24 +39,24 @@ const UnomiMauticSync = () => {
       const profileData = {
         firstname: profile.properties.firstName || 'N/A',
         lastname: profile.properties.lastName || 'N/A',
-        email: profile.properties.email || 'N/A'
-        // orderNumber: profile.properties.orderNumber,
-        // orderDate: profile.properties.orderDate,
-        // orderTotal: profile.properties.orderTotal,
-        // paymentMethod: profile.properties.paymentMethod,
-        // productNames: profile.properties.productNames.join(', '),
-        // couponCode: profile.properties.couponCode,
-        // woocommerceCartNonce: profile.properties.woocommerceCartNonce,
-        // total: profile.properties.total,
-        // billing_state: profile.properties.billing_state,
-        // billing_address_1: profile.properties.billing_address_1,
-        // billing_country: profile.properties.billing_country,
-        // billing_city: profile.properties.billing_city,
-        // billing_company: profile.properties.billing_company,
-        // phone: profile.properties.phone,
-        // tva: profile.properties.tva,
-        // expedition: profile.properties.expedition,
-        // remise: profile.properties.remise
+        email: profile.properties.email || 'N/A',
+        orderNumber: profile.properties.orderNumber,
+        orderDate: profile.properties.orderDate,
+        orderTotal: profile.properties.orderTotal,
+        paymentMethod: profile.properties.paymentMethod,
+        productNames: profile.properties.productNames.join(', '),
+        couponCode: profile.properties.couponCode,
+        woocommerceCartNonce: profile.properties.woocommerceCartNonce,
+        total: profile.properties.total,
+        billing_state: profile.properties.billing_state,
+        billing_address_1: profile.properties.billing_address_1,
+        billing_country: profile.properties.billing_country,
+        billing_city: profile.properties.billing_city,
+        billing_company: profile.properties.billing_company,
+        phone: profile.properties.phone,
+        tva: profile.properties.tva,
+        expedition: profile.properties.expedition,
+        remise: profile.properties.remise
       };
 
       try {
