@@ -39,7 +39,7 @@ const UnomiMauticSync = () => {
       const profileData = {
         firstname: profile.properties.firstName || 'N/A',
         lastname: profile.properties.lastName || 'N/A',
-        email: profile.properties.email || 'N/A',
+        email: profile.properties.email || 'N/A'
         // orderNumber: profile.properties.orderNumber,
         // orderDate: profile.properties.orderDate,
         // orderTotal: profile.properties.orderTotal,
@@ -84,22 +84,9 @@ const UnomiMauticSync = () => {
     const syncProfiles = async () => {
       console.log('Starting profile synchronization...');
       const fetchedProfiles = await fetchProfiles();
-
-      console.log('Fetched profile scopes:', fetchedProfiles.map(p => p.scope));
-
-      const filteredProfiles = fetchedProfiles.filter((profile) => {
-        const hasEmail = profile.properties.email;
-        const isCorrectScope = profile.properties.orderDate;
-
-        if (!hasEmail) {
-          console.log(`Profile ${profile.itemId} missing email:`, profile);
-        }
-        if (!isCorrectScope) {
-          console.log(`Profile ${profile.itemId} has different scope:`, profile.scope);
-        }
-
-        return isCorrectScope && hasEmail;
-      });
+      const filteredProfiles = fetchedProfiles.filter(
+        (profile) => profile.properties.orderDate && profile.properties.email
+      );
 
       if (filteredProfiles.length === 0) {
         console.log('No profiles found with the specified criteria.');
