@@ -85,7 +85,11 @@ const UnomiMauticSync = () => {
       console.log('Starting profile synchronization...');
       const fetchedProfiles = await fetchProfiles();
       const filteredProfiles = fetchedProfiles.filter(
+<<<<<<< HEAD
         (profile) => profile.properties.orderDate && profile.properties.email
+=======
+        (profile) => profile.properties.orderDate && profile.properties.billing_email
+>>>>>>> main
       );
 
       if (filteredProfiles.length === 0) {
