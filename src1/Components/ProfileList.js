@@ -196,7 +196,6 @@ function ProfileList() {
             <h3>{profile.properties?.firstName} {profile.properties?.lastName} {profile.properties?.surename}</h3>
             <p>ID: {profile.itemId}</p>
             {renderProfileField("Email", profile.properties?.email)}
-            {renderProfileField("Scope", profile.properties?.scopeEmail)}
             {renderProfileField("LastName", profile.properties?.lastName)}
             {renderProfileField("FirstName", profile.properties?.firstName)}
             {renderProfileField("SureName", profile.properties?.surename)}

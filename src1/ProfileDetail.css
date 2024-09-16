@@ -1,0 +1,248 @@
+/* ProfileDetail.css with Seesion */
+
+.profile-detail {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  max-width: 100%; /* Ensure the container doesn't exceed the available width */
+  margin: 40px auto;
+  font-family: Arial, sans-serif;
+  overflow-x: auto; /* Add horizontal scrolling if the table exceeds the container's width */
+}
+
+.profile-detail table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  margin-bottom: 20px;
+  table-layout: auto; /* Allow the table to expand based on its content */
+}
+
+.profile-detail th,
+.profile-detail td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  white-space: normal; /* Allow text to wrap to the next line */
+  overflow: visible; /* Ensure content isn't clipped */
+  word-wrap: break-word; /* Break long words to fit within the cell */
+}
+
+.profile-detail th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+  color: #555;
+}
+
+.profile-detail tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.profile-detail tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+.profile-detail td {
+  color: #555;
+}
+
+.profile-detail p {
+  text-align: center;
+  color: #666;
+  font-size: 18px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.pagination button {
+  margin: 0 5px;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  cursor: pointer;
+}
+
+.pagination button.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  padding: 10px 20px;
+  margin: 0 5px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  margin: 0 10px;
+}
+
+.navbar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.navbar button {
+  background-color: #f1f1f1;
+  border: none;
+  padding: 10px 20px;
+  margin: 0 10px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.navbar button.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.navbar button:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+/* Apply styles to the nested table */
+.nested-table {
+  border-collapse: collapse;
+  width: 100%; /* Adjust width as needed */
+}
+
+.nested-table td {
+  border: none; /* Remove table cell borders */
+  padding: 8px; /* Adjust padding as needed */
+  background-color: transparent; /* Make background transparent */
+}
+
+/* Optional: Add styles for row background color to make it clearer */
+.nested-table tr:nth-child(even) {
+  background-color: rgba(0, 0, 0, 0.05); /* Light grey background for even rows */
+}
+
+.nested-table tr:nth-child(odd) {
+  background-color: transparent; /* Transparent background for odd rows */
+}
+
+
+/* Css for sale frequence */
+
+/* Add this to your ProfileDetail.css file */
+
+.date-interval {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* Space between elements */
+  margin-top: 20px; /* Space from the above content */
+}
+
+.date-interval label {
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.date-interval input[type="date"] {
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.date-interval button {
+  padding: 7px 15px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.date-interval button:hover {
+  background-color: #45a049;
+}
+
+.date-interval p {
+  font-weight: bold;
+  margin-left: 10px; /* Space between the button and frequency text */
+}
+
+
+
+
+
+/* css for the sale filter */
+.date-interval {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* Space between elements */
+  margin-top: 20px; /* Space from the above content */
+}
+
+.date-interval label {
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.date-input {
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  /* Ensures DatePicker styling matches */
+}
+
+.date-interval button {
+  padding: 7px 15px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.date-interval button:hover {
+  background-color: #45a049;
+}
+
+.date-interval p {
+  font-weight: bold;
+  margin-left: 10px; /* Space between the button and frequency text */
+}
+
+
+
+
+

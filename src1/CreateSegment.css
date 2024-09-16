@@ -1,0 +1,106 @@
+.segment-creator {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.segment-creator h1,
+.segment-creator h2 {
+  text-align: center;
+  color: #333;
+}
+
+.segment-creator .form-group {
+  margin-bottom: 15px;
+}
+
+.segment-creator .form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.segment-creator .form-group input,
+.segment-creator .form-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.segment-creator .form-group input[type="checkbox"] {
+  width: auto;
+  margin-left: 10px;
+}
+
+.segment-creator button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.segment-creator button:disabled {
+  background-color: #ddd;
+  cursor: not-allowed;
+}
+
+.segment-creator button:hover:enabled {
+  background-color: #0056b3;
+}
+
+.segment-creator ul {
+  list-style: none;
+  padding: 0;
+}
+
+.segment-creator ul li {
+  margin-bottom: 10px;
+}
+
+.segment-creator ul li button {
+  margin-left: 10px;
+  padding: 5px 10px;
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.segment-creator ul li button:hover {
+  background-color: #c82333;
+}
+
+.segment-creator p {
+  text-align: center;
+  font-size: 14px;
+  color: #333;
+}
+
+.segment-creator .loading {
+  text-align: center;
+  font-size: 14px;
+  color: #007bff;
+}
+
+.segment-creator .error {
+  text-align: center;
+  font-size: 14px;
+  color: red;
+}
+
+.segment-creator .success {
+  text-align: center;
+  font-size: 14px;
+  color: green;
+}

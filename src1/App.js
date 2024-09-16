@@ -12,7 +12,7 @@ import CreateRule from './Components/CreateRule';
 import ProfileDetail from './Components/ProfileDetail';
 import CreateScopeComponent from './Components/CreateScopeComponent';
 import ProfilesWithSales from './Components/ProfilesWithSales';
-// import UnomiMauticSync from './Components/UnomiMauticSync';
+import UnomiMauticSync from './Components/UnomiMauticSync';
 
 function App() {
   return (
@@ -38,7 +38,7 @@ function App() {
           </Routes>
         </MainContent>
       </div>
-      {/*<UnomiMauticSync />*/}
+      <UnomiMauticSync />
       {/* <setupProxy /> */}
     </Router>
   );
