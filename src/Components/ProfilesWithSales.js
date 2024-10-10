@@ -19,7 +19,7 @@ const ProfilesWithSales = () => {
   const [endDate, setEndDate] = useState('');
   const [profileCountMessage, setProfileCountMessage] = useState('');
 
-  const fetchSalesEvents = async () => {
+  const fetchSalesEvents = useCallback(async () => {
     try {
       const salesResponse = await fetch('https://cdp.qilinsa.com:9443/cxs/events/search', {
         method: 'POST',
@@ -44,6 +44,7 @@ const ProfilesWithSales = () => {
 
       const salesData = await salesResponse.json();
       const salesEvents = salesData.list || [];
+
       if (salesEvents.length === 0) {
         setError('No sales events found.');
         setProfiles([]);
@@ -61,47 +62,67 @@ const ProfilesWithSales = () => {
         return;
       }
 
-      const profilesData = await Promise.all(profileIds.map(async (id) => {
-        const profileResponse = await fetch(`https://cdp.qilinsa.com:9443/cxs/profiles/${id}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': 'Basic ' + btoa('karaf:karaf')
-          }
-        });
+      // Retrieve profiles from Unomi
+      await fetchProfiles(profileIds, salesEvents);
+    } catch (error) {
+      setError('Error fetching sales events: ' + error.message);
+      setProfiles([]);
+      setFilteredProfiles([]);
+      setSortedProfiles([]);
+      setProfileCountMessage(''); // Clear message on error
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-        if (profileResponse.ok) {
-          const profile = await profileResponse.json();
-          
-          const profileSalesEvents = salesEvents.filter(event => event.profileId === id);
-          
-          const totalSalesAmount = profileSalesEvents.reduce((total, event) => {
-            const orderTotalStr = event.properties?.orderTotal;
-            
-            if (orderTotalStr) {
-              const cleanedOrderTotal = orderTotalStr.replace(/,/g, '');
-              const orderTotal = parseFloat(cleanedOrderTotal) || 0;
-              return total + orderTotal;
-            } else {
-              return total;
+  const fetchProfiles = async (profileIds, salesEvents) => {
+  
+    try {
+      const validProfiles = [];
+
+      for (const id of profileIds) {
+        try {
+          const profileResponse = await fetch(`https://cdp.qilinsa.com:9443/cxs/profiles/${id}`, {
+            method: 'GET',
+            headers: {
+              'Authorization': 'Basic ' + btoa('karaf:karaf')
             }
-          }, 0);
+          });
 
-          const totalNumberOfOrders = profileSalesEvents.length;
-          const averageSalesAmount = totalNumberOfOrders > 0 ? (totalSalesAmount / totalNumberOfOrders) : 0;
+          if (profileResponse.ok) {
+            const profile = await profileResponse.json();
+            
+            const profileSalesEvents = salesEvents.filter(event => event.profileId === id);
+            
+            const totalSalesAmount = profileSalesEvents.reduce((total, event) => {
+              const orderTotalStr = event.properties?.orderTotal;
+              
+              if (orderTotalStr) {
+                const cleanedOrderTotal = orderTotalStr.replace(/,/g, '');
+                const orderTotal = parseFloat(cleanedOrderTotal) || 0;
+                return total + orderTotal;
+              } else {
+                return total;
+              }
+            }, 0);
 
-          return {
-            ...profile,
-            totalSalesAmount,
-            totalNumberOfOrders,
-            averageSalesAmount
-          };
-        } else {
-          throw new Error(`Error fetching profile ${id}: ${profileResponse.statusText}`);
+            const totalNumberOfOrders = profileSalesEvents.length;
+            const averageSalesAmount = totalNumberOfOrders > 0 ? (totalSalesAmount / totalNumberOfOrders) : 0;
+
+            validProfiles.push({
+              ...profile,
+              totalSalesAmount,
+              totalNumberOfOrders,
+              averageSalesAmount
+            });
+          }
+        } catch (profileError) {
+          console.error(`Error fetching profile ${id}: ${profileError.message}`);
         }
-      }));
+      }
 
       // Trier les profils par lastVisit du plus récent au plus ancien par défaut
-      const sortedProfiles = profilesData.sort((a, b) => {
+      const sortedProfiles = validProfiles.sort((a, b) => {
         const dateA = new Date(a.properties?.lastVisit || 0);
         const dateB = new Date(b.properties?.lastVisit || 0);
         return dateB - dateA;
@@ -112,16 +133,14 @@ const ProfilesWithSales = () => {
       setSortedProfiles(sortedProfiles); // Initialize sortedProfiles
       setProfileCountMessage(sortedProfiles.length > 0 ? `Found ${sortedProfiles.length} profiles.` : 'No profiles found.');
     } catch (error) {
-      setError('Error fetching profiles with sales: ' + error.message);
+      setError('Error processing profiles: ' + error.message);
       setProfiles([]);
       setFilteredProfiles([]);
       setSortedProfiles([]);
       setProfileCountMessage(''); // Clear message on error
-    } finally {
-      setLoading(false);
     }
   };
-
+  
   const formatCurrency = (amount) => {
     return amount.toLocaleString('fr-FR', { style: 'currency', currency: 'XOF', minimumFractionDigits: 0 });
   };
@@ -197,7 +216,7 @@ const ProfilesWithSales = () => {
 
   useEffect(() => {
     fetchSalesEvents();
-  }, []);
+  }, [fetchSalesEvents]); 
 
   useEffect(() => {
     handleSort();
@@ -293,11 +312,13 @@ const ProfilesWithSales = () => {
           </select>
         </label>
       </div>
+      
       {profileCountMessage && (
-        <div className={`count-message ${profiles.length > 0 ? 'success' : 'error'}`}>
+        <div className={`count-message ${profileCountMessage.includes('Found') ? 'success' : 'error'}`}>
           {profileCountMessage}
         </div>
       )}
+
       <table className="profiles-table">
         <thead>
           <tr>
@@ -329,16 +350,15 @@ const ProfilesWithSales = () => {
         </tbody>
       </table>
       <div className="pagination">
-        {Array.from({ length: totalPages }, (_, index) => (
-          <button 
-            key={index + 1} 
-            className={`pagination-button ${currentPage === index + 1 ? 'active' : ''}`} 
-            onClick={() => handlePageChange(index + 1)}
-          >
-            {index + 1}
-          </button>
-        ))}
-      </div>
+      {Array.from({ length: totalPages }, (_, i) => (
+        <button 
+          key={i} 
+          className={`pagination-button ${currentPage === i + 1 ? 'active' : ''}`} 
+          onClick={() => handlePageChange(i + 1)}>
+          {i + 1}
+        </button>
+      ))}
+    </div>
     </div>
   );
 };

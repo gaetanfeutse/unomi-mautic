@@ -241,6 +241,12 @@ function ProfileList() {
                 {renderProfileField("General Observations", profile.properties?.generalObservations)}
                 {renderProfileField("Impact on Victim", profile.properties?.ImpactOnVictim)}
                 {renderProfileField("Evidence ID Number", profile.properties?.evidenceIdNumber)}
+                {renderProfileField("Profile Delete By", profile.properties?.deleteBy)}
+                {renderProfileField("Email Send Time", profile.properties?.sendEmailTime ? new Date(profile.properties.sendEmailTime).toLocaleString() : '')}
+                {renderProfileField("Email Open Time", profile.properties?.openEmailTime ? new Date(profile.properties.openEmailTime).toLocaleString() : '')}
+                {renderProfileField("Email Subject", profile.properties?.emailSubject)}
+                {renderProfileField("Form Name", profile.properties?.formName)}
+                {renderProfileField("Form Date Submitted", profile.properties?.formDateSubmited ? new Date(profile.properties.formDateSubmited).toLocaleString() : '')}
               </>
             )}
             <button className="bts" onClick={() => handleSeeMore(profile.itemId)}>
