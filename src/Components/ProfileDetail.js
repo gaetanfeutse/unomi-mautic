@@ -522,7 +522,7 @@ const filterSalesByDateRange = () => {
                   <td>{`-${sale.properties.remise}` || 'N/A'}</td>
                   <td>{sale.properties.billing_first_name || 'N/A'}</td>
                   <td>{sale.properties.billing_last_name || 'N/A'}</td>
-                  <td>{sale.properties.billing_email || 'N/A'}</td>
+                  <td>{sale.properties.email || 'N/A'}</td>
                   <td>{sale.properties.billing_address_1 || 'N/A'}</td>
                   <td>{sale.properties.billing_city || 'N/A'}</td>
                   <td>{sale.properties.expedition|| 'N/A'}</td>

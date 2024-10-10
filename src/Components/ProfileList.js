@@ -200,6 +200,7 @@ function ProfileList() {
             {renderProfileField("LastName", profile.properties?.lastName)}
             {renderProfileField("FirstName", profile.properties?.firstName)}
             {renderProfileField("SureName", profile.properties?.surename)}
+            {renderProfileField("DeleteBy", profile.properties?.deleteBy)}
             <p>Number of Visits: {profile.properties?.nbOfVisits}</p>
             <p>First Visit: {profile.properties?.firstVisit ? new Date(profile.properties.firstVisit).toLocaleString() : 'N/A'}</p>
             <p>Last Visit: {profile.properties?.lastVisit ? new Date(profile.properties.lastVisit).toLocaleString() : 'N/A'}</p>
@@ -229,6 +230,7 @@ function ProfileList() {
                 {renderProfileField("Form of Comunication", profile.properties?.formOfComunication)}
                 {renderProfileField("Language of Communication", profile.properties?.language)}
                 {renderProfileField("Your Profession", profile.properties?.profession)}
+                {renderProfileField("Satisfaction level", profile.properties?.levelOfSatisfaction)}
                 {renderProfileField("Case Number", profile.properties?.caseNumber)}
                 {renderProfileField("Date of Report", profile.properties?.dateOfReport)}
                 {renderProfileField("Your Location of Incident", profile.properties?.locationOfIncident)}
