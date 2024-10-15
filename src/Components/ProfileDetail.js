@@ -11,14 +11,20 @@ function ProfileDetail() {
   const [sessionDetails, setSessionDetails] = useState([]);
   const [comments, setComments] = useState([]);
   const [sales, setSales] = useState([]);
+  const [emailInfos, setEmailInfos] = useState([]);
+  const [formInfos, setFormInfos] = useState([]);
   const [profilePage, setProfilePage] = useState(1);
   const [sessionPage, setSessionPage] = useState(1);
   const [commentsPage, setCommentsPage] = useState(1);
   const [salesPage, setSalesPage] = useState(1);
+  const [emailInfosPage, setEmailInfosPage] = useState(1);
+  const [formInfosPage, setFormInfosPage] = useState(1);
   const [profileTotalPages, setProfileTotalPages] = useState(0);
   const [sessionTotalPages, setSessionTotalPages] = useState(0);
   const [commentsTotalPages, setCommentsTotalPages] = useState(0);
   const [salesTotalPages, setSalesTotalPages] = useState(0);
+  const [emailInfosTotalPages, setEmailInfosTotalPages] = useState(0);
+  const [formInfosTotalPages, setFormInfosTotalPages] = useState(0);
   const [activeSection, setActiveSection] = useState('profile');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -279,10 +285,106 @@ const filterSalesByDateRange = () => {
       }
     };
 
+    const fetchEmailInfos = async () => {
+      try {
+        const response = await fetch('https://cdp.qilinsa.com:9443/cxs/events/search', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Basic ' + btoa('karaf:karaf')
+          },
+          body: JSON.stringify({
+            sortby: 'timeStamp:desc',
+            offset: 0,
+            limit: 20,
+            condition: {
+              type: 'booleanCondition',
+              parameterValues: {
+                operator: 'and',
+                subConditions: [
+                  {
+                    type: 'profilePropertyCondition',
+                    parameterValues: {
+                      propertyName: 'profileId',
+                      comparisonOperator: 'equals',
+                      propertyValue: id
+                    }
+                  },
+                  {
+                    type: 'eventPropertyCondition',
+                    parameterValues: {
+                      propertyName: 'eventType',
+                      comparisonOperator: 'equals',
+                      propertyValue: 'emailInfos'
+                    }
+                  }
+                ]
+              }
+            }
+          })
+        });
+        const data = await response.json();
+        const sortedEmailInfos = (data.list || []).sort((a, b) => new Date(b.timeStamp) - new Date(a.timeStamp));
+        setEmailInfos(sortedEmailInfos);
+        setEmailInfosTotalPages(Math.ceil(sortedEmailInfos.length / ITEMS_PER_PAGE));
+      } catch (error) {
+        console.error('Error fetching emailInfos:', error);
+      }
+    };
+
+    const fetchFormInfos = async () => {
+      try {
+        const response = await fetch('https://cdp.qilinsa.com:9443/cxs/events/search', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Basic ' + btoa('karaf:karaf')
+          },
+          body: JSON.stringify({
+            sortby: 'timeStamp:desc',
+            offset: 0,
+            limit: 20,
+            condition: {
+              type: 'booleanCondition',
+              parameterValues: {
+                operator: 'and',
+                subConditions: [
+                  {
+                    type: 'profilePropertyCondition',
+                    parameterValues: {
+                      propertyName: 'profileId',
+                      comparisonOperator: 'equals',
+                      propertyValue: id
+                    }
+                  },
+                  {
+                    type: 'eventPropertyCondition',
+                    parameterValues: {
+                      propertyName: 'eventType',
+                      comparisonOperator: 'equals',
+                      propertyValue: 'formInfos'
+                    }
+                  }
+                ]
+              }
+            }
+          })
+        });
+        const data = await response.json();
+        const sortedformInfos = (data.list || []).sort((a, b) => new Date(b.timeStamp) - new Date(a.timeStamp));
+        setFormInfos(sortedformInfos);
+        setFormInfosTotalPages(Math.ceil(sortedformInfos.length / ITEMS_PER_PAGE));
+      } catch (error) {
+        console.error('Error fetching formInfos:', error);
+      }
+    };
+
     fetchProfileDetails();
     fetchSessionDetails();
     fetchComments();
     fetchSales();
+    fetchEmailInfos();
+    fetchFormInfos();
   }, [id]);
 
   const getPagedData = (data, page) => {
@@ -559,6 +661,74 @@ const filterSalesByDateRange = () => {
       )}
     </div>
   );
+
+  const renderEmailInfos = () => (
+    <div>
+      <h2>User Email Action</h2>
+      {emailInfos.length === 0 ? (
+        <p>No Email Action found.</p>
+      ) : (
+        <div>
+          <table>
+            <thead>
+              <tr>
+                <th>Email Send Time</th>
+                <th>Email Open Time</th>
+                <th>Email Subject</th>
+              </tr>
+            </thead>
+            <tbody>
+              {getPagedData(emailInfos, emailInfosPage).map((emailInfos) => (
+                <tr key={emailInfos.itemId}>
+                  <td>{emailInfos.properties.sendEmailTime ? new Date(emailInfos.properties.sendEmailTime).toLocaleString('fr-FR', { timeZone: 'UTC' }) : 'N/A'}</td>
+                  <td>{emailInfos.properties.openEmailTime ? new Date(emailInfos.properties.openEmailTime).toLocaleString('fr-FR', { timeZone: 'UTC' }) : 'N/A'}</td>
+                  <td>{emailInfos.properties.emailSubject || 'N/A'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <Pagination
+            currentPage={emailInfosPage}
+            totalPages={emailInfosTotalPages}
+            onPageChange={setEmailInfosPage}
+          />
+        </div>
+      )}
+    </div>
+  );
+
+  const renderFormInfos = () => (
+    <div>
+      <h2>User Email Action</h2>
+      {formInfos.length === 0 ? (
+        <p>No Form Action found.</p>
+      ) : (
+        <div>
+          <table>
+            <thead>
+              <tr>
+                <th>Form Name</th>
+                <th>Form Date Submitted</th>
+              </tr>
+            </thead>
+            <tbody>
+              {getPagedData(formInfos, formInfosPage).map((formInfos) => (
+                <tr key={formInfos.itemId}>
+                  <td>{formInfos.properties.formName || 'N/A'}</td>
+                  <td>{formInfos.properties.formDateSubmited ? new Date(formInfos.properties.formDateSubmited).toLocaleString('fr-FR', { timeZone: 'UTC' }) : 'N/A'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <Pagination
+            currentPage={formInfosPage}
+            totalPages={formInfosTotalPages}
+            onPageChange={setFormInfosPage}
+          />
+        </div>
+      )}
+    </div>
+  );
   
 
   return (
@@ -568,11 +738,15 @@ const filterSalesByDateRange = () => {
         <button onClick={() => setActiveSection('session')} className={activeSection === 'session' ? 'active' : ''}>Session Details</button>
         <button onClick={() => setActiveSection('comments')} className={activeSection === 'comments' ? 'active' : ''}>User Comments</button>
         <button onClick={() => setActiveSection('sales')} className={activeSection === 'sales' ? 'active' : ''}>Sales</button>
+        <button onClick={() => setActiveSection('emailInfos')} className={activeSection === 'emailInfos' ? 'active' : ''}>User Email Action</button>
+        <button onClick={() => setActiveSection('formInfos')} className={activeSection === 'formInfos' ? 'active' : ''}>User Form Action</button>
       </nav>
       {activeSection === 'profile' && renderProfileDetails()}
       {activeSection === 'session' && renderSessionDetails()}
       {activeSection === 'comments' && renderComments()}
       {activeSection === 'sales' && renderSales()}
+      {activeSection === 'emailInfos' && renderEmailInfos()}
+      {activeSection === 'formInfos' && renderFormInfos()}
     </div>
   );
 }
