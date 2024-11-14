@@ -140,6 +140,99 @@ const ProfilesWithSales = () => {
       setProfileCountMessage(''); // Clear message on error
     }
   };
+
+  const updateProfileProperties = async (totalSalesAmount, averageSalesAmount, totalNumberOfOrders, sessionId) => {
+    // Nouvelle structure JSON avec un tableau d'événements
+    const eventPayload = {
+      "sessionId": sessionId, // Remplace par l'ID de session
+        "events": [
+            {
+                "eventType": "sale",
+                "scope": "unomi-tracker-bat",
+                "source": {
+                    "itemType": "site",
+                    "scope": "unomi-tracker-bat",
+                    "itemId": "mysite"
+                },
+                "target": {
+                    "itemType": "form",
+                    "scope": "unomi-tracker-bat",
+                    "itemId": "contactForm"
+                },
+                "properties": {
+                    "totalSalesAmount": totalSalesAmount,
+                    "averageSalesAmount": averageSalesAmount,
+                    "totalNumberOfOrders": totalNumberOfOrders
+                }
+            }
+        ]
+    };
+
+    console.log("JSON envoyé à Unomi :", JSON.stringify(eventPayload, null, 2));
+
+    try {
+        const response = await fetch("https://cdp.qilinsa.com:9443/cxs/eventcollector", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Basic " + btoa("karaf:karaf") // Remplace si tes identifiants sont différents
+            },
+            body: JSON.stringify(eventPayload)
+        });
+        
+        if (!response.ok) {
+            throw new Error('Erreur lors de la mise à jour du profil');
+        }
+
+        const data = await response.json();
+        console.log("Mise à jour réussie :", data);
+    } catch (error) {
+        console.error("Erreur :", error);
+    }
+};
+
+const fetchOldestSessionId = async (profileId) => {
+  try {
+      const response = await fetch(`https://cdp.qilinsa.com:9443/cxs/profiles/${profileId}/sessions`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Basic ' + btoa('karaf:karaf')
+          }
+      });
+      
+      const data = await response.json();
+      console.log("Réponse de l'API pour les sessions du profil", profileId, ":", data);
+
+      // Vérifie si 'data.list' contient des sessions
+      if (!data.list || data.list.length === 0) {
+          console.warn(`Aucune session trouvée pour le profil ${profileId}`);
+          return null;
+      }
+      
+      // Trie les sessions par date et récupère l'ID de la session la plus ancienne
+      const sortedSessions = data.list.sort((a, b) => new Date(b.timeStamp) - new Date(a.timeStamp));
+      const oldestSessionId = sortedSessions[0].itemId;
+      console.log(`ID de la session la plus ancienne pour le profil ${profileId}: ${oldestSessionId}`);
+      
+      return oldestSessionId;
+  } catch (error) {
+      console.error('Erreur lors de la récupération de l\'ID de la session la plus ancienne :', error);
+      return null;
+  }
+};
+
+
+const handleProfileUpdate = useCallback(async () => {
+  if (sortedProfiles.length > 0) {
+    for (const profile of sortedProfiles) {
+      const sessionId = await fetchOldestSessionId(profile.itemId);  // Utilisation ici
+      console.log(`Profile ID: ${profile.itemId}, Session ID: ${sessionId}`);
+      updateProfileProperties(profile.totalSalesAmount, profile.averageSalesAmount, profile.totalNumberOfOrders, sessionId);
+    }
+  }
+}, [sortedProfiles]);
+
   
   const formatCurrency = (amount) => {
     return amount.toLocaleString('fr-FR', { style: 'currency', currency: 'XOF', minimumFractionDigits: 0 });
@@ -217,6 +310,12 @@ const ProfilesWithSales = () => {
   useEffect(() => {
     fetchSalesEvents();
   }, [fetchSalesEvents]); 
+
+  useEffect(() => {
+    if (sortedProfiles.length > 0) {
+      handleProfileUpdate();
+    }
+  }, [sortedProfiles, handleProfileUpdate]);
 
   useEffect(() => {
     handleSort();

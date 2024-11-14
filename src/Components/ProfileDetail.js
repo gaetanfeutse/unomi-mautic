@@ -13,18 +13,21 @@ function ProfileDetail() {
   const [sales, setSales] = useState([]);
   const [emailInfos, setEmailInfos] = useState([]);
   const [formInfos, setFormInfos] = useState([]);
+  const [cartAbandoned, setCartAbandoned] = useState([]);
   const [profilePage, setProfilePage] = useState(1);
   const [sessionPage, setSessionPage] = useState(1);
   const [commentsPage, setCommentsPage] = useState(1);
   const [salesPage, setSalesPage] = useState(1);
   const [emailInfosPage, setEmailInfosPage] = useState(1);
   const [formInfosPage, setFormInfosPage] = useState(1);
+  const [cartAbandonedPage, setCartAbandonedPage] = useState(1);
   const [profileTotalPages, setProfileTotalPages] = useState(0);
   const [sessionTotalPages, setSessionTotalPages] = useState(0);
   const [commentsTotalPages, setCommentsTotalPages] = useState(0);
   const [salesTotalPages, setSalesTotalPages] = useState(0);
   const [emailInfosTotalPages, setEmailInfosTotalPages] = useState(0);
   const [formInfosTotalPages, setFormInfosTotalPages] = useState(0);
+  const [cartAbandonedTotalPages, setCartAbandonedTotalPages] = useState(0);
   const [activeSection, setActiveSection] = useState('profile');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -379,12 +382,60 @@ const filterSalesByDateRange = () => {
       }
     };
 
+    const fetchCartAbandoned = async () => {
+      try {
+        const response = await fetch('https://cdp.qilinsa.com:9443/cxs/events/search', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Basic ' + btoa('karaf:karaf')
+          },
+          body: JSON.stringify({
+            sortby: 'timeStamp:desc',
+            offset: 0,
+            limit: 20,
+            condition: {
+              type: 'booleanCondition',
+              parameterValues: {
+                operator: 'and',
+                subConditions: [
+                  {
+                    type: 'profilePropertyCondition',
+                    parameterValues: {
+                      propertyName: 'profileId',
+                      comparisonOperator: 'equals',
+                      propertyValue: id
+                    }
+                  },
+                  {
+                    type: 'eventPropertyCondition',
+                    parameterValues: {
+                      propertyName: 'eventType',
+                      comparisonOperator: 'equals',
+                      propertyValue: 'cartAbandoned'
+                    }
+                  }
+                ]
+              }
+            }
+          })
+        });
+        const data = await response.json();
+        const sortedCartAbandoned = (data.list || []).sort((a, b) => new Date(b.timeStamp) - new Date(a.timeStamp));
+        setCartAbandoned(sortedCartAbandoned);
+        setCartAbandonedTotalPages(Math.ceil(sortedCartAbandoned.length / ITEMS_PER_PAGE));
+      } catch (error) {
+        console.error('Error fetching cartAbandoned:', error);
+      }
+    };
+
     fetchProfileDetails();
     fetchSessionDetails();
     fetchComments();
     fetchSales();
     fetchEmailInfos();
     fetchFormInfos();
+    fetchCartAbandoned();
   }, [id]);
 
   const getPagedData = (data, page) => {
@@ -672,6 +723,7 @@ const filterSalesByDateRange = () => {
           <table>
             <thead>
               <tr>
+                <th>Item ID</th>
                 <th>Email Send Time</th>
                 <th>Email Open Time</th>
                 <th>Email Subject</th>
@@ -680,6 +732,7 @@ const filterSalesByDateRange = () => {
             <tbody>
               {getPagedData(emailInfos, emailInfosPage).map((emailInfos) => (
                 <tr key={emailInfos.itemId}>
+                  <td>{emailInfos.itemId}</td>
                   <td>{emailInfos.properties.sendEmailTime ? new Date(emailInfos.properties.sendEmailTime).toLocaleString('fr-FR', { timeZone: 'UTC' }) : 'N/A'}</td>
                   <td>{emailInfos.properties.openEmailTime ? new Date(emailInfos.properties.openEmailTime).toLocaleString('fr-FR', { timeZone: 'UTC' }) : 'N/A'}</td>
                   <td>{emailInfos.properties.emailSubject || 'N/A'}</td>
@@ -699,7 +752,7 @@ const filterSalesByDateRange = () => {
 
   const renderFormInfos = () => (
     <div>
-      <h2>User Email Action</h2>
+      <h2>User Form Action</h2>
       {formInfos.length === 0 ? (
         <p>No Form Action found.</p>
       ) : (
@@ -707,6 +760,7 @@ const filterSalesByDateRange = () => {
           <table>
             <thead>
               <tr>
+                <th>Item ID</th>
                 <th>Form Name</th>
                 <th>Form Date Submitted</th>
               </tr>
@@ -714,6 +768,7 @@ const filterSalesByDateRange = () => {
             <tbody>
               {getPagedData(formInfos, formInfosPage).map((formInfos) => (
                 <tr key={formInfos.itemId}>
+                  <td>{formInfos.itemId}</td>
                   <td>{formInfos.properties.formName || 'N/A'}</td>
                   <td>{formInfos.properties.formDateSubmited ? new Date(formInfos.properties.formDateSubmited).toLocaleString('fr-FR', { timeZone: 'UTC' }) : 'N/A'}</td>
                 </tr>
@@ -724,6 +779,69 @@ const filterSalesByDateRange = () => {
             currentPage={formInfosPage}
             totalPages={formInfosTotalPages}
             onPageChange={setFormInfosPage}
+          />
+        </div>
+      )}
+    </div>
+  );
+
+  const renderCartAbandoned = () => (
+    <div>
+      <h2>Abandoned Cart Details</h2>
+      {cartAbandoned.length === 0 ? (
+        <p>No Abandoned Cart found.</p>
+      ) : (
+        <div>
+          <table>
+            <thead>
+              <tr>
+                <th>Item ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Phone Number</th>
+                <th>Billing Address</th>
+                <th>Shipping Address</th>
+                <th>Email</th>
+                <th>Cart Product Names</th>
+                <th>Coupon Code</th>
+                <th>Order Status</th>
+                <th>Cart Total</th>
+                <th>Check Out Url</th>
+              </tr>
+            </thead>
+            <tbody>
+              {getPagedData(cartAbandoned, cartAbandonedPage).map((cartAbandoned) => (
+                <tr key={cartAbandoned.itemId}>
+                  <td>{cartAbandoned.itemId}</td>
+                  <td>{cartAbandoned.properties.firstName || 'N/A'}</td>
+                  <td>{cartAbandoned.properties.lastName || 'N/A'}</td>
+                  <td>{cartAbandoned.properties.phoneNumber || 'N/A'}</td>
+                  <td>{cartAbandoned.properties.billingAddress || 'N/A'}</td>
+                  <td>{cartAbandoned.properties.shippingAddress || 'N/A'}</td>
+                  <td>{cartAbandoned.properties.email || 'N/A'}</td>
+                  <td>{cartAbandoned.properties.CartProductNames && cartAbandoned.properties.CartProductNames.length > 0 ? (
+                      <table>
+                        <tbody>
+                            <tr>
+                              <td>{cartAbandoned.properties.CartProductNames}</td>
+                            </tr>
+                        </tbody>
+                      </table>
+                       ) : (
+                  'N/A'
+                  )}</td>
+                  <td>{cartAbandoned.properties.couponCode || 'N/A'}</td>
+                  <td>{cartAbandoned.properties.orderStatus || 'N/A'}</td>
+                  <td>{cartAbandoned.properties.cartTotal || 'N/A'}</td>
+                  <td>{cartAbandoned.properties.checkoutUrl || 'N/A'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <Pagination
+            currentPage={cartAbandonedPage}
+            totalPages={cartAbandonedTotalPages}
+            onPageChange={setCartAbandonedPage}
           />
         </div>
       )}
@@ -740,6 +858,7 @@ const filterSalesByDateRange = () => {
         <button onClick={() => setActiveSection('sales')} className={activeSection === 'sales' ? 'active' : ''}>Sales</button>
         <button onClick={() => setActiveSection('emailInfos')} className={activeSection === 'emailInfos' ? 'active' : ''}>User Email Action</button>
         <button onClick={() => setActiveSection('formInfos')} className={activeSection === 'formInfos' ? 'active' : ''}>User Form Action</button>
+        <button onClick={() => setActiveSection('cartAbandoned')} className={activeSection === 'cartAbandoned' ? 'active' : ''}>Abandoned Cart Details</button>
       </nav>
       {activeSection === 'profile' && renderProfileDetails()}
       {activeSection === 'session' && renderSessionDetails()}
@@ -747,6 +866,7 @@ const filterSalesByDateRange = () => {
       {activeSection === 'sales' && renderSales()}
       {activeSection === 'emailInfos' && renderEmailInfos()}
       {activeSection === 'formInfos' && renderFormInfos()}
+      {activeSection === 'cartAbandoned' && renderCartAbandoned()}
     </div>
   );
 }
