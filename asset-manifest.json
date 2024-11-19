@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/unomi-mautic/static/css/main.9cdbf155.css",
-    "main.js": "/unomi-mautic/static/js/main.5d1280a2.js",
+    "main.js": "/unomi-mautic/static/js/main.97ea53c0.js",
     "index.html": "/unomi-mautic/index.html",
     "main.9cdbf155.css.map": "/unomi-mautic/static/css/main.9cdbf155.css.map",
-    "main.5d1280a2.js.map": "/unomi-mautic/static/js/main.5d1280a2.js.map"
+    "main.97ea53c0.js.map": "/unomi-mautic/static/js/main.97ea53c0.js.map"
   },
   "entrypoints": [
     "static/css/main.9cdbf155.css",
-    "static/js/main.5d1280a2.js"
+    "static/js/main.97ea53c0.js"
   ]
 }
