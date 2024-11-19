@@ -246,7 +246,12 @@ function ProfileList() {
                 {renderProfileField("Email Open Time", profile.properties?.openEmailTime ? new Date(profile.properties.openEmailTime).toLocaleString('fr-FR', { timeZone: 'UTC' }) : '')}
                 {renderProfileField("Email Subject", profile.properties?.emailSubject)}
                 {renderProfileField("Form Name", profile.properties?.formName)}
+                {renderProfileField("Order Status", profile.properties?.orderStatus)}
+                {renderProfileField("Cart Total", profile.properties?.cartTotal)}
                 {renderProfileField("Form Date Submitted", profile.properties?.formDateSubmited ? new Date(profile.properties.formDateSubmited).toLocaleString() : '')}
+                {renderProfileField("Average Sales Amount", profile.properties?.averageSalesAmount)}
+                {renderProfileField("Total Number OfOrders", profile.properties?.totalNumberOfOrders)}
+                {renderProfileField("Total Sales Amount", profile.properties?.totalSalesAmount)}
               </>
             )}
             <button className="bts" onClick={() => handleSeeMore(profile.itemId)}>

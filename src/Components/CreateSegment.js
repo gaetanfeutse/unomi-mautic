@@ -276,6 +276,10 @@ function SegmentCreator() {
             <option value="properties.email">Email</option>
             <option value="properties.pageViewCount">Page View Count</option>
             <option value="properties.previousVisit">Previous Visit</option>
+            <option value="properties.orderStatus">Order Status</option>
+            <option value="properties.totalNumberOfOrders">Total Number Of Orders</option>
+            <option value="properties.averageSalesAmount">Average Sales Amount</option>
+            <option value="properties.totalSalesAmount">Total Sales Amount</option>
             <option value="properties.kids">kids</option>
           </select>
         </div>
