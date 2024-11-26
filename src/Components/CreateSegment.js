@@ -281,6 +281,7 @@ function SegmentCreator() {
             <option value="properties.averageSalesAmount">Average Sales Amount</option>
             <option value="properties.totalSalesAmount">Total Sales Amount</option>
             <option value="properties.kids">kids</option>
+            <option value="systemProperties.lastUpdated">Last Updated</option>
           </select>
         </div>
         <div className="form-group">
@@ -293,6 +294,7 @@ function SegmentCreator() {
             <option value="notExists">Not Exists</option>
             <option value="greaterThan">Greater Than</option>
             <option value="lessThan">Less Than</option>
+            <option value="greaterThanOrEqualTo">Greater Than Or Equal To</option>
           </select>
         </div>
         {condition.parameterValues.comparisonOperator !== 'exists' && condition.parameterValues.comparisonOperator !== 'notExists' && (
