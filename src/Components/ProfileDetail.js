@@ -273,6 +273,13 @@ const filterSalesByDateRange = () => {
                       comparisonOperator: 'equals',
                       propertyValue: 'sale'
                     }
+                  },
+                  {
+                    type: 'eventPropertyCondition',
+                    parameterValues: {
+                      propertyName: 'properties.orderTotal',
+                      comparisonOperator: 'exists'
+                    }
                   }
                 ]
               }
