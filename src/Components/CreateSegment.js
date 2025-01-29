@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../CreateSegment.css'; // Assurez-vous d'avoir un fichier CSS pour le styling
+import '../CreateSegment.css';
 
 function SegmentCreator() {
   const initialSegmentState = {
@@ -32,6 +32,7 @@ function SegmentCreator() {
 
   const [segment, setSegment] = useState(initialSegmentState);
   const [condition, setCondition] = useState(initialConditionState);
+  const [activeField, setActiveField] = useState(null); // To track the active field
   const [message, setMessage] = useState(null);
   const [scopes, setScopes] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -44,9 +45,7 @@ function SegmentCreator() {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log('Full response data:', data);
-        const scopes = data.scopes || data; // Trying both options to find scopes
-        console.log('Scopes fetched:', scopes);
+        const scopes = data.scopes || data;
         setScopes(scopes);
       })
       .catch((error) => {
@@ -68,43 +67,57 @@ function SegmentCreator() {
 
   const handleChangeCondition = (e) => {
     const { name, value } = e.target;
+
+    if (name === 'propertyValueInteger' && value !== '' && !/^-?\d+$/.test(value)) {
+      return; // Prevent invalid integer input
+    }
+
     setCondition((prevCondition) => ({
       ...prevCondition,
       parameterValues: {
         ...prevCondition.parameterValues,
-        [name]: name === 'propertyValueInteger' ? (value === '' ? '' : parseInt(value, 10)) : value,
+        [name]: value,
       },
     }));
+
+    if (['propertyValue', 'propertyValueInteger', 'propertyValueDateExpr'].includes(name)) {
+      if (value === '') {
+        setActiveField(null); // Reset active field if the input is cleared
+      } else {
+        setActiveField(name); // Track the active field
+      }
+    }
   };
 
   const handleAddCondition = () => {
-    // Validation des champs requis
     if (!condition.parameterValues.propertyName || !condition.parameterValues.comparisonOperator) {
       setMessage('Please fill in Property Name and Comparison Operator.');
       return;
     }
 
-    // Création d'une copie de la condition
+    if (
+      condition.parameterValues.comparisonOperator !== 'exists' &&
+      condition.parameterValues.comparisonOperator !== 'notExists' &&
+      !condition.parameterValues[activeField]
+    ) {
+      setMessage('Please fill in a valid value for the selected field.');
+      return;
+    }
+
     const newCondition = { ...condition };
 
-    // Suppression des champs vides ou non applicables
     if (newCondition.parameterValues.comparisonOperator === 'exists' || newCondition.parameterValues.comparisonOperator === 'notExists') {
       delete newCondition.parameterValues.propertyValue;
       delete newCondition.parameterValues.propertyValueInteger;
       delete newCondition.parameterValues.propertyValueDateExpr;
     } else {
-      if (!newCondition.parameterValues.propertyValue) {
-        delete newCondition.parameterValues.propertyValue;
-      }
-      if (newCondition.parameterValues.propertyValueInteger === '') {
-        delete newCondition.parameterValues.propertyValueInteger;
-      }
-      if (!newCondition.parameterValues.propertyValueDateExpr) {
-        delete newCondition.parameterValues.propertyValueDateExpr;
-      }
+      Object.keys(newCondition.parameterValues).forEach((key) => {
+        if (!newCondition.parameterValues[key]) {
+          delete newCondition.parameterValues[key];
+        }
+      });
     }
 
-    // Ajout de la condition valide à la liste des sous-conditions
     setSegment((prevSegment) => ({
       ...prevSegment,
       condition: {
@@ -116,8 +129,8 @@ function SegmentCreator() {
       },
     }));
 
-    // Réinitialisation de l'état de la condition
     setCondition(initialConditionState);
+    setActiveField(null);
     setMessage(null);
   };
 
@@ -147,67 +160,22 @@ function SegmentCreator() {
 
     setLoading(true);
 
-    const newCondition = { ...condition };
-    if (newCondition.parameterValues.comparisonOperator === 'exists' || newCondition.parameterValues.comparisonOperator === 'notExists') {
-      delete newCondition.parameterValues.propertyValue;
-      delete newCondition.parameterValues.propertyValueInteger;
-      delete newCondition.parameterValues.propertyValueDateExpr;
-    } else {
-      if (!newCondition.parameterValues.propertyValue) {
-        delete newCondition.parameterValues.propertyValue;
-      }
-      if (newCondition.parameterValues.propertyValueInteger === '') {
-        delete newCondition.parameterValues.propertyValueInteger;
-      }
-      if (!newCondition.parameterValues.propertyValueDateExpr) {
-        delete newCondition.parameterValues.propertyValueDateExpr;
-      }
-    }
-
-    const subConditions = [
-      ...segment.condition.parameterValues.subConditions,
-      newCondition,
-    ].filter((cond) => cond.parameterValues.propertyName && cond.parameterValues.comparisonOperator);
-
-    const segmentData = {
-      ...segment,
-      condition: {
-        ...segment.condition,
-        parameterValues: {
-          ...segment.condition.parameterValues,
-          subConditions,
-        },
-      },
-    };
-
-    setMessage(null);
-
     fetch('https://cdp.qilinsa.com:9443/cxs/segments', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: 'Basic ' + btoa('karaf:karaf'),
       },
-      body: JSON.stringify(segmentData),
+      body: JSON.stringify(segment),
     })
       .then((response) => {
         setLoading(false);
         if (!response.ok) {
           throw new Error('Network response was not ok: ' + response.status);
         }
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          return response.json();
-        } else {
-          return {};
-        }
+        return response.json();
       })
-      .then((data) => {
-        if (Object.keys(data).length === 0) {
-          console.log('Segment created successfully (empty response).');
-        } else {
-          console.log('Segment created:', data);
-        }
+      .then(() => {
         setMessage('Segment created successfully!');
         setSegment(initialSegmentState);
         setCondition(initialConditionState);
@@ -224,6 +192,7 @@ function SegmentCreator() {
       <h1>Create Segment</h1>
       <form onSubmit={handleSubmit}>
         <h2>Segment Metadata</h2>
+        {/* Metadata inputs */}
         <div className="form-group">
           <label htmlFor="id">ID *</label>
           <input type="text" id="id" name="id" placeholder="ID" value={segment.metadata.id} onChange={handleChangeSegment} required />
@@ -254,7 +223,9 @@ function SegmentCreator() {
         <h2>Add Condition</h2>
         <div className="form-group">
           <label htmlFor="propertyName">Property Name *</label>
-          <select type="text" id="propertyName" name="propertyName" value={condition.parameterValues.propertyName} onChange={handleChangeCondition} required>
+          <select id="propertyName" name="propertyName" value={condition.parameterValues.propertyName} onChange={handleChangeCondition} required>
+            <option value="">Select Property Name</option>
+            {/* Add options here */}
             <option value="">select Property Name</option>
             <option value="properties.firstName">First Name</option>
             <option value="properties.lastName">Last Name</option>
@@ -281,6 +252,7 @@ function SegmentCreator() {
             <option value="properties.averageSalesAmount">Average Sales Amount</option>
             <option value="properties.totalSalesAmount">Total Sales Amount</option>
             <option value="properties.kids">kids</option>
+            <option value="properties.paymentMethod">Payment Method</option>
             <option value="systemProperties.lastUpdated">Last Updated</option>
           </select>
         </div>
@@ -295,25 +267,48 @@ function SegmentCreator() {
             <option value="greaterThan">Greater Than</option>
             <option value="lessThan">Less Than</option>
             <option value="greaterThanOrEqualTo">Greater Than Or Equal To</option>
+            <option value="lessThanOrEqualTo">Less Than Or Equal To</option>
           </select>
         </div>
         {condition.parameterValues.comparisonOperator !== 'exists' && condition.parameterValues.comparisonOperator !== 'notExists' && (
           <>
             <div className="form-group">
               <label htmlFor="propertyValue">Property Value</label>
-              <input type="text" id="propertyValue" name="propertyValue" placeholder="Property Value" value={condition.parameterValues.propertyValue || ''} onChange={handleChangeCondition} />
+              <input
+                type="text"
+                id="propertyValue"
+                name="propertyValue"
+                value={condition.parameterValues.propertyValue}
+                onChange={handleChangeCondition}
+                disabled={activeField && activeField !== 'propertyValue'}
+              />
             </div>
             <div className="form-group">
               <label htmlFor="propertyValueInteger">Property Value Integer</label>
-              <input type="number" id="propertyValueInteger" name="propertyValueInteger" placeholder="Property Value Integer" value={condition.parameterValues.propertyValueInteger || ''} onChange={handleChangeCondition} />
+              <input
+                type="number"
+                id="propertyValueInteger"
+                name="propertyValueInteger"
+                value={condition.parameterValues.propertyValueInteger}
+                onChange={handleChangeCondition}
+                disabled={activeField && activeField !== 'propertyValueInteger'}
+              />
             </div>
             <div className="form-group">
               <label htmlFor="propertyValueDateExpr">Property Value Date Expression</label>
-              <input type="text" id="propertyValueDateExpr" name="propertyValueDateExpr" placeholder="Property Value Date Expression" value={condition.parameterValues.propertyValueDateExpr || ''} onChange={handleChangeCondition} />
+              <input
+                type="text"
+                id="propertyValueDateExpr"
+                name="propertyValueDateExpr"
+                value={condition.parameterValues.propertyValueDateExpr}
+                onChange={handleChangeCondition}
+                disabled={activeField && activeField !== 'propertyValueDateExpr'}
+              />
             </div>
           </>
         )}
         <button type="button" onClick={handleAddCondition}>Add Condition</button>
+        {/* Display sub-conditions */}
         <h2>Segment Conditions</h2>
         <ul>
           {segment.condition.parameterValues.subConditions.map((subCondition, index) => (
