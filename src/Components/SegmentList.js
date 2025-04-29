@@ -13,52 +13,78 @@ function SegmentList() {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [segmentToDelete, setSegmentToDelete] = useState(null);
 
-  // Fetch segments when the component mounts
+  // Fetch segments when the component mounts and set up polling
   useEffect(() => {
+    // Initial fetch
     fetchSegments();
+    
+    // Set up polling to check for new segments every 30 seconds
+    const intervalId = setInterval(() => {
+      console.log('Polling for new segments...');
+      fetchSegments();
+    }, 30000); // 30 seconds
+    
+    // Clean up interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   // Function to fetch segments from the Unomi instance with pagination to ensure all segments are retrieved
   const fetchSegments = async () => {
     try {
-      // Initialize empty array to hold all segments
-      let allSegments = [];
-      let offset = 0;
-      const limit = 100; // Larger page size to reduce number of requests
-      let hasMore = true;
+      const timestamp = new Date().toISOString();
+      console.log(`Fetching segments at ${timestamp}...`);
       
-      // Keep fetching until we have all segments
-      while (hasMore) {
-        // Use pagination parameters to fetch segments in batches
-        const response = await fetch(`https://cdp.qilinsa.com:9443/cxs/segments?offset=${offset}&limit=${limit}&sort=name`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': 'Basic ' + btoa('karaf:karaf')
+      // Use the POST endpoint with a query condition to get all segments, similar to your Python script
+      const response = await fetch('https://cdp.qilinsa.com:9443/cxs/segments/query', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Basic ' + btoa('karaf:karaf')
+        },
+        body: JSON.stringify({
+          offset: 0,
+          limit: 1000, // Large limit to get all segments in one request if possible
+          condition: {
+            type: 'matchAllCondition'
           }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        // Add fetched segments to our collection
-        allSegments = [...allSegments, ...data];
-        
-        // If we got fewer segments than the limit, we've reached the end
-        if (data.length < limit) {
-          hasMore = false;
-        } else {
-          // Otherwise, increase offset for the next batch
-          offset += limit;
-        }
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
       }
       
+      const responseData = await response.json();
+      const allSegments = responseData.list || [];
+      
       console.log(`Retrieved ${allSegments.length} total segments from Unomi`);
-      setSegments(allSegments);
+      
+      // Check if any segments have itemId but no id, and set id = itemId for consistency
+      const normalizedSegments = allSegments.map(segment => {
+        if (!segment.id && segment.itemId) {
+          return { ...segment, id: segment.itemId };
+        } else if (!segment.id && segment.metadata && segment.metadata.id) {
+          return { ...segment, id: segment.metadata.id };
+        }
+        return segment;
+      });
+      
+      // Update state only if we have new or different segments
+      setSegments(prevSegments => {
+        // Compare by checking if any new segments exist
+        const prevIds = new Set(prevSegments.map(s => s.id || s.itemId));
+        const hasNewSegments = normalizedSegments.some(s => !prevIds.has(s.id || s.itemId));
+        
+        // Also check for different lengths which indicates added or removed segments
+        if (hasNewSegments || prevSegments.length !== normalizedSegments.length) {
+          console.log('New segments detected, updating state...');
+          return normalizedSegments;
+        }
+        
+        console.log('No new segments detected, keeping current state');
+        return prevSegments;
+      });
     } catch (error) {
       console.error('Error fetching segments:', error);
     }
