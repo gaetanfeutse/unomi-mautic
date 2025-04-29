@@ -56,6 +56,134 @@ function ProfileList() {
     setSearchTerm(e.target.value);
   };
 
+  const updateProfileProperties = async (sessionId, totalDuration) => {
+    // Nouvelle structure JSON avec un tableau d'événements
+    const eventPayload = {
+      "sessionId": sessionId, // Remplace par l'ID de session
+        "events": [
+            {
+                "eventType": "sale",
+                "scope": "unomi-tracker-bat",
+                "source": {
+                    "itemType": "site",
+                    "scope": "unomi-tracker-bat",
+                    "itemId": "mysite"
+                },
+                "target": {
+                    "itemType": "form",
+                    "scope": "unomi-tracker-bat",
+                    "itemId": "contactForm"
+                },
+                "properties": {
+                    "totalTimeSpent": totalDuration
+                }
+            }
+        ]
+    };
+
+    console.log("JSON envoyé à Unomi :", JSON.stringify(eventPayload, null, 2));
+
+    try {
+        const response = await fetch("https://cdp.qilinsa.com:9443/cxs/eventcollector", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Basic " + btoa("karaf:karaf") // Remplace si tes identifiants sont différents
+            },
+            body: JSON.stringify(eventPayload)
+        });
+        
+        if (!response.ok) {
+            throw new Error('Erreur lors de la mise à jour du profil');
+        }
+
+        const data = await response.json();
+        console.log("Mise à jour réussie :", data);
+    } catch (error) {
+        console.error("Erreur :", error);
+    }
+};
+
+  const fetchOldestSessionIdAndTotalDuration = async (profileId) => {
+    try {
+        const response = await fetch(`https://cdp.qilinsa.com:9443/cxs/profiles/${profileId}/sessions`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Basic ' + btoa('karaf:karaf')
+            }
+        });
+        
+        const data = await response.json();
+        console.log("Réponse de l'API pour les sessions du profil", profileId, ":", data);
+  
+        // Vérifie si 'data.list' contient des sessions
+        if (!data.list || data.list.length === 0) {
+            console.warn(`Aucune session trouvée pour le profil ${profileId}, le profil sera ignoré.`);
+            return null; // Ignorer ce profil
+        }
+        
+        // Trie les sessions par date
+        const sortedSessions = data.list.sort((a, b) => new Date(b.timeStamp) - new Date(a.timeStamp));
+        
+        // Récupère l'ID de la session la plus ancienne
+        const oldestSessionId = sortedSessions[0].itemId;
+  
+        // Calcule la somme des durées
+        const totalDuration = data.list.reduce((sum, session) => sum + (session.duration || 0), 0);
+        const totalDurationInMinutes = parseFloat((totalDuration / 60000).toFixed(2));
+
+        console.log("Sessions triées :", sortedSessions);
+  
+        console.log(`ID de la session la plus ancienne pour le profil ${profileId}: ${oldestSessionId}`);
+        console.log(`Somme des durées des sessions pour le profil ${profileId}: ${totalDurationInMinutes}`);
+  
+        // Retourne les deux résultats
+        return { oldestSessionId, totalDurationInMinutes };
+    } catch (error) {
+        console.error(`Erreur lors de la récupération des données pour le profil ${profileId}, le profil sera ignoré.`, error);
+        
+    }
+  };
+
+  const handleProfileUpdate = useCallback(async () => {
+    if (profiles.length > 0) {
+        for (const profile of profiles) {
+            // Appelle la fonction et gère les erreurs
+            const result = await fetchOldestSessionIdAndTotalDuration(profile.itemId);
+            
+            // Vérifie si le résultat est valide
+            if (!result) {
+                console.warn(`Impossible de traiter le profil ${profile.itemId}, données manquantes ou erreur.`);
+                continue; // Passe au prochain profil
+            }
+            
+            const { oldestSessionId, totalDurationInMinutes } = result;
+
+            // Vérifie si les valeurs retournées sont correctes
+            if (!oldestSessionId || totalDurationInMinutes == null) {
+                console.warn(`Les données retournées pour le profil ${profile.itemId} sont incomplètes.`);
+                continue; // Passe au prochain profil
+            }
+
+            console.log(`Profile ID: ${profile.itemId}, Session ID: ${oldestSessionId}, Total Duration: ${totalDurationInMinutes}`);
+
+            // Met à jour les propriétés du profil
+            updateProfileProperties(oldestSessionId, totalDurationInMinutes);
+        }
+    } else {
+        console.warn("La liste des profils est vide, aucune mise à jour n'a été effectuée.");
+    }
+}, [profiles]);
+
+
+  useEffect(() => {
+    if (profiles.length > 0) {
+      handleProfileUpdate();
+    }
+  }, [profiles, handleProfileUpdate]);
+  
+
   // Handle pagination page changes
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -246,7 +374,12 @@ function ProfileList() {
                 {renderProfileField("Email Open Time", profile.properties?.openEmailTime ? new Date(profile.properties.openEmailTime).toLocaleString('fr-FR', { timeZone: 'UTC' }) : '')}
                 {renderProfileField("Email Subject", profile.properties?.emailSubject)}
                 {renderProfileField("Form Name", profile.properties?.formName)}
+                {renderProfileField("Order Status", profile.properties?.orderStatus)}
+                {renderProfileField("Cart Total", profile.properties?.cartTotal)}
                 {renderProfileField("Form Date Submitted", profile.properties?.formDateSubmited ? new Date(profile.properties.formDateSubmited).toLocaleString() : '')}
+                {renderProfileField("Average Sales Amount", profile.properties?.averageSalesAmount)}
+                {renderProfileField("Total Number OfOrders", profile.properties?.totalNumberOfOrders)}
+                {renderProfileField("Total Sales Amount", profile.properties?.totalSalesAmount)}
               </>
             )}
             <button className="bts" onClick={() => handleSeeMore(profile.itemId)}>

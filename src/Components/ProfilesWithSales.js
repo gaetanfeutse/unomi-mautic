@@ -32,54 +32,67 @@ const ProfilesWithSales = () => {
           offset: 0,
           limit: 1000,
           condition: {
-            type: 'eventPropertyCondition',
+            type: 'booleanCondition',
             parameterValues: {
-              propertyName: 'eventType',
-              comparisonOperator: 'equals',
-              propertyValue: 'sale'
+              operator: 'and',
+              subConditions: [
+                {
+                  type: 'eventPropertyCondition',
+                  parameterValues: {
+                    propertyName: 'eventType',
+                    comparisonOperator: 'equals',
+                    propertyValue: 'sale'
+                  }
+                },
+                {
+                  type: 'eventPropertyCondition',
+                  parameterValues: {
+                    propertyName: 'properties.orderTotal',
+                    comparisonOperator: 'exists'
+                  }
+                }
+              ]
             }
           }
         })
       });
-
+  
       const salesData = await salesResponse.json();
       const salesEvents = salesData.list || [];
-
+  
       if (salesEvents.length === 0) {
-        setError('No sales events found.');
+        setError('No sales events found with valid orderTotal.');
         setProfiles([]);
         setFilteredProfiles([]);
-        setProfileCountMessage(''); // Clear message if no sales events
+        setProfileCountMessage('');
         return;
       }
-
-      const profileIds = [...new Set(salesEvents.map(event => event.profileId))];
+  
+      const profileIds = [...new Set(salesEvents.map(event => event.profileId).filter(Boolean))];
+  
       if (profileIds.length === 0) {
-        setError('No profile IDs found from sales events.');
+        setError('No profiles associated with sales events found.');
         setProfiles([]);
         setFilteredProfiles([]);
-        setProfileCountMessage(''); // Clear message if no profile IDs
+        setProfileCountMessage('');
         return;
       }
-
-      // Retrieve profiles from Unomi
+  
       await fetchProfiles(profileIds, salesEvents);
     } catch (error) {
       setError('Error fetching sales events: ' + error.message);
       setProfiles([]);
       setFilteredProfiles([]);
-      setSortedProfiles([]);
-      setProfileCountMessage(''); // Clear message on error
+      setProfileCountMessage('');
     } finally {
       setLoading(false);
     }
   }, []);
-
-  const fetchProfiles = async (profileIds, salesEvents) => {
   
+  const fetchProfiles = async (profileIds, salesEvents) => {
     try {
       const validProfiles = [];
-
+  
       for (const id of profileIds) {
         try {
           const profileResponse = await fetch(`https://cdp.qilinsa.com:9443/cxs/profiles/${id}`, {
@@ -88,27 +101,29 @@ const ProfilesWithSales = () => {
               'Authorization': 'Basic ' + btoa('karaf:karaf')
             }
           });
-
+  
           if (profileResponse.ok) {
             const profile = await profileResponse.json();
-            
+  
+            // Filtrer les événements associés au profil
             const profileSalesEvents = salesEvents.filter(event => event.profileId === id);
-            
+  
+            // Calcul des métriques
             const totalSalesAmount = profileSalesEvents.reduce((total, event) => {
               const orderTotalStr = event.properties?.orderTotal;
-              
+  
               if (orderTotalStr) {
-                const cleanedOrderTotal = orderTotalStr.replace(/,/g, '');
-                const orderTotal = parseFloat(cleanedOrderTotal) || 0;
-                return total + orderTotal;
-              } else {
-                return total;
+                const cleanedOrderTotal = orderTotalStr.replace(/[^0-9.]/g, ''); // Supprime les caractères non numériques
+                const orderTotal = parseFloat(cleanedOrderTotal);
+                return total + (isNaN(orderTotal) ? 0 : orderTotal); // Ajoute uniquement les valeurs valides
               }
+  
+              return total;
             }, 0);
-
+  
             const totalNumberOfOrders = profileSalesEvents.length;
             const averageSalesAmount = totalNumberOfOrders > 0 ? (totalSalesAmount / totalNumberOfOrders) : 0;
-
+  
             validProfiles.push({
               ...profile,
               totalSalesAmount,
@@ -120,26 +135,121 @@ const ProfilesWithSales = () => {
           console.error(`Error fetching profile ${id}: ${profileError.message}`);
         }
       }
-
-      // Trier les profils par lastVisit du plus récent au plus ancien par défaut
+  
+      // Trier les profils par dernière visite
       const sortedProfiles = validProfiles.sort((a, b) => {
         const dateA = new Date(a.properties?.lastVisit || 0);
         const dateB = new Date(b.properties?.lastVisit || 0);
         return dateB - dateA;
       });
-
+  
       setProfiles(sortedProfiles);
-      setFilteredProfiles(sortedProfiles); // Initialize filteredProfiles
-      setSortedProfiles(sortedProfiles); // Initialize sortedProfiles
-      setProfileCountMessage(sortedProfiles.length > 0 ? `Found ${sortedProfiles.length} profiles.` : 'No profiles found.');
+      setFilteredProfiles(sortedProfiles);
+      setProfileCountMessage(
+        sortedProfiles.length > 0 ? `Found ${sortedProfiles.length} profiles.` : 'No profiles found.'
+      );
     } catch (error) {
       setError('Error processing profiles: ' + error.message);
       setProfiles([]);
       setFilteredProfiles([]);
-      setSortedProfiles([]);
-      setProfileCountMessage(''); // Clear message on error
+      setProfileCountMessage('');
     }
   };
+  
+  
+  const updateProfileProperties = async (totalSalesAmount, averageSalesAmount, totalNumberOfOrders, sessionId) => {
+    // Nouvelle structure JSON avec un tableau d'événements
+    const eventPayload = {
+      "sessionId": sessionId, // Remplace par l'ID de session
+        "events": [
+            {
+                "eventType": "sale",
+                "scope": "unomi-tracker-bat",
+                "source": {
+                    "itemType": "site",
+                    "scope": "unomi-tracker-bat",
+                    "itemId": "mysite"
+                },
+                "target": {
+                    "itemType": "form",
+                    "scope": "unomi-tracker-bat",
+                    "itemId": "contactForm"
+                },
+                "properties": {
+                    "totalSalesAmount": totalSalesAmount,
+                    "averageSalesAmount": averageSalesAmount,
+                    "totalNumberOfOrders": totalNumberOfOrders
+                }
+            }
+        ]
+    };
+
+    console.log("JSON envoyé à Unomi :", JSON.stringify(eventPayload, null, 2));
+
+    try {
+        const response = await fetch("https://cdp.qilinsa.com:9443/cxs/eventcollector", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Basic " + btoa("karaf:karaf") // Remplace si tes identifiants sont différents
+            },
+            body: JSON.stringify(eventPayload)
+        });
+        
+        if (!response.ok) {
+            throw new Error('Erreur lors de la mise à jour du profil');
+        }
+
+        const data = await response.json();
+        console.log("Mise à jour réussie :", data);
+    } catch (error) {
+        console.error("Erreur :", error);
+    }
+};
+
+const fetchOldestSessionId = async (profileId) => {
+  try {
+      const response = await fetch(`https://cdp.qilinsa.com:9443/cxs/profiles/${profileId}/sessions`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Basic ' + btoa('karaf:karaf')
+          }
+      });
+      
+      const data = await response.json();
+      console.log("Réponse de l'API pour les sessions du profil", profileId, ":", data);
+
+      // Vérifie si 'data.list' contient des sessions
+      if (!data.list || data.list.length === 0) {
+          const newSessionId = `session-${crypto.randomUUID()}`;
+          console.log(`Nouvelle session ID générée pour le profil ${profileId} : ${newSessionId}`);
+          return newSessionId;
+      }
+      
+      // Trie les sessions par date et récupère l'ID de la session la plus ancienne
+      const sortedSessions = data.list.sort((a, b) => new Date(b.timeStamp) - new Date(a.timeStamp));
+      const oldestSessionId = sortedSessions[0].itemId;
+      console.log(`ID de la session la plus ancienne pour le profil ${profileId}: ${oldestSessionId}`);
+      
+      return oldestSessionId;
+  } catch (error) {
+      console.error('Erreur lors de la récupération de l\'ID de la session la plus ancienne :', error);
+      return null;
+  }
+};
+
+
+const handleProfileUpdate = useCallback(async () => {
+  if (sortedProfiles.length > 0) {
+    for (const profile of sortedProfiles) {
+      const sessionId = await fetchOldestSessionId(profile.itemId);  // Utilisation ici
+      console.log(`Profile ID: ${profile.itemId}, Session ID: ${sessionId}`);
+      updateProfileProperties(profile.totalSalesAmount, profile.averageSalesAmount, profile.totalNumberOfOrders, sessionId);
+    }
+  }
+}, [sortedProfiles]);
+
   
   const formatCurrency = (amount) => {
     return amount.toLocaleString('fr-FR', { style: 'currency', currency: 'XOF', minimumFractionDigits: 0 });
@@ -217,6 +327,12 @@ const ProfilesWithSales = () => {
   useEffect(() => {
     fetchSalesEvents();
   }, [fetchSalesEvents]); 
+
+  useEffect(() => {
+    if (sortedProfiles.length > 0) {
+      handleProfileUpdate();
+    }
+  }, [sortedProfiles, handleProfileUpdate]);
 
   useEffect(() => {
     handleSort();

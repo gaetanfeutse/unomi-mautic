@@ -18,19 +18,47 @@ function SegmentList() {
     fetchSegments();
   }, []);
 
-  // Function to fetch segments from the Unomi instance
+  // Function to fetch segments from the Unomi instance with pagination to ensure all segments are retrieved
   const fetchSegments = async () => {
     try {
-      const response = await fetch('https://cdp.qilinsa.com:9443/cxs/segments', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': 'Basic ' + btoa('karaf:karaf')
+      // Initialize empty array to hold all segments
+      let allSegments = [];
+      let offset = 0;
+      const limit = 100; // Larger page size to reduce number of requests
+      let hasMore = true;
+      
+      // Keep fetching until we have all segments
+      while (hasMore) {
+        // Use pagination parameters to fetch segments in batches
+        const response = await fetch(`https://cdp.qilinsa.com:9443/cxs/segments?offset=${offset}&limit=${limit}&sort=name`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': 'Basic ' + btoa('karaf:karaf')
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
         }
-      });
-      const data = await response.json();
-      setSegments(data);
+        
+        const data = await response.json();
+        
+        // Add fetched segments to our collection
+        allSegments = [...allSegments, ...data];
+        
+        // If we got fewer segments than the limit, we've reached the end
+        if (data.length < limit) {
+          hasMore = false;
+        } else {
+          // Otherwise, increase offset for the next batch
+          offset += limit;
+        }
+      }
+      
+      console.log(`Retrieved ${allSegments.length} total segments from Unomi`);
+      setSegments(allSegments);
     } catch (error) {
       console.error('Error fetching segments:', error);
     }
