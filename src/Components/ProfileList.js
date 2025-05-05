@@ -8,6 +8,7 @@ Modal.setAppElement('#root'); // Set the app element for accessibility
 function ProfileList() {
   const [profiles, setProfiles] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedField, setSelectedField] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const profilesPerPage = 5;
   const [showAnonymous, setShowAnonymous] = useState(true);
@@ -54,6 +55,15 @@ function ProfileList() {
   // Handle changes in the search input
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
+    // Reset to first page when search term changes
+    setCurrentPage(1);
+  };
+
+  // Handle changes in the field selection dropdown
+  const handleFieldChange = (e) => {
+    setSelectedField(e.target.value);
+    // Reset to first page when field selection changes
+    setCurrentPage(1);
   };
 
   const updateProfileProperties = async (sessionId, totalDuration) => {
@@ -176,7 +186,6 @@ function ProfileList() {
     }
 }, [profiles]);
 
-
   useEffect(() => {
     if (profiles.length > 0) {
       handleProfileUpdate();
@@ -202,26 +211,229 @@ function ProfileList() {
     return !firstName && !lastName && !email;
   };
 
-  // Filter profiles based on search term and anonymity
+  // Helper function to format date for comparison
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    try {
+      return new Date(dateString).toLocaleDateString().toLowerCase();
+    } catch (e) {
+      return dateString.toString().toLowerCase();
+    }
+  };
+  
+  // Helper function to safely convert any value to string for comparison
+  const safeString = (value) => {
+    if (value === null || value === undefined) return '';
+    return value.toString().toLowerCase();
+  };
+  
+  // Helper function to check if a field exists and has a value
+  const hasField = (profile, fieldName) => {
+    switch (fieldName) {
+      case 'firstName':
+        return !!profile.properties?.firstName;
+      case 'lastName':
+        return !!profile.properties?.lastName;
+      case 'surename':
+        return !!profile.properties?.surename;
+      case 'email':
+        return !!profile.properties?.email;
+      case 'scopeEmail':
+        return !!profile.properties?.scopeEmail;
+      case 'segments':
+        return !!(profile.segments && profile.segments.length > 0);
+      case 'id':
+        return !!profile.itemId;
+      case 'nbOfVisits':
+        return profile.properties?.nbOfVisits !== undefined;
+      case 'firstVisit':
+        return !!profile.properties?.firstVisit;
+      case 'lastVisit':
+        return !!profile.properties?.lastVisit;
+      case 'lastUpdated':
+        return !!profile.systemProperties?.lastUpdated;
+      case 'kids':
+        return profile.properties?.kids !== undefined;
+      case 'jobTitle':
+        return !!profile.properties?.jobTitle;
+      case 'gender':
+        return !!profile.properties?.gender;
+      case 'nationality':
+        return !!profile.properties?.nationality;
+      case 'phoneNumber':
+        return !!profile.properties?.phoneNumber;
+      case 'age':
+        return profile.properties?.age !== undefined;
+      case 'birthDate':
+        return !!profile.properties?.birthDate;
+      case 'location':
+        return !!profile.properties?.location;
+      case 'maritalStatus':
+        return !!profile.properties?.maritalStatus;
+      case 'address':
+        return !!profile.properties?.address;
+      case 'city':
+        return !!profile.properties?.city;
+      case 'zipCode':
+        return !!profile.properties?.zipCode;
+      case 'levelOfEducation':
+        return !!profile.properties?.levelOfEducation;
+      case 'language':
+        return !!profile.properties?.language;
+      case 'profession':
+        return !!profile.properties?.profession;
+      case 'company':
+        return !!profile.properties?.company;
+      case 'averageSalesAmount':
+        return profile.properties?.averageSalesAmount !== undefined;
+      case 'totalNumberOfOrders':
+        return profile.properties?.totalNumberOfOrders !== undefined;
+      case 'totalSalesAmount':
+        return profile.properties?.totalSalesAmount !== undefined;
+      case 'all':
+        return true;
+      default:
+        return true;
+    }
+  };
+
+  // Filter profiles based on search term, selected field, and anonymity
   const filteredProfiles = profiles.filter(profile => {
+    // First filter out anonymous profiles if not showing them
     if (!showAnonymous && isAnonymous(profile)) {
       return false;
     }
-    const firstName = profile.properties?.firstName || '';
-    const lastName = profile.properties?.lastName || '';
-    const fullName = `${firstName} ${lastName}`.toLowerCase();
-    const email = profile.properties?.email || '';
-    const segments = profile.segments?.join(' ') || '';
-    const id = profile.itemId || '';
+    
+    // If field is not 'all', filter profiles that don't have the selected field
+    if (selectedField !== 'all' && !hasField(profile, selectedField)) {
+      return false;
+    }
+    
+    // If search term is empty, include all profiles that passed the field check
+    if (!searchTerm.trim()) {
+      return true;
+    }
+    
+    const searchTermLower = searchTerm.toLowerCase();
+    
+    // Apply field-specific filtering based on selected field
+    switch (selectedField) {
+      // Basic profile information
+      case 'firstName':
+        return safeString(profile.properties?.firstName).includes(searchTermLower);
+      
+      case 'lastName':
+        return safeString(profile.properties?.lastName).includes(searchTermLower);
+        
+      case 'surename':
+        return safeString(profile.properties?.surename).includes(searchTermLower);
+      
+      case 'email':
+        return safeString(profile.properties?.email).includes(searchTermLower);
+        
+      case 'scopeEmail':
+        return safeString(profile.properties?.scopeEmail).includes(searchTermLower);
+      
+      // Segments and IDs  
+      case 'segments':
+        return (profile.segments?.join(' ') || '').toLowerCase().includes(searchTermLower);
+      
+      case 'id':
+        return (profile.itemId || '').toLowerCase().includes(searchTermLower);
+      
+      // Visit related information  
+      case 'nbOfVisits':
+        return safeString(profile.properties?.nbOfVisits).includes(searchTermLower);
+        
+      case 'firstVisit':
+        return formatDate(profile.properties?.firstVisit).includes(searchTermLower);
+        
+      case 'lastVisit':
+        return formatDate(profile.properties?.lastVisit).includes(searchTermLower);
+        
+      case 'lastUpdated':
+        return formatDate(profile.systemProperties?.lastUpdated).includes(searchTermLower);
+      
+      // Personal information
+      case 'kids':
+        return safeString(profile.properties?.kids).includes(searchTermLower);
+        
+      case 'jobTitle':
+        return safeString(profile.properties?.jobTitle).includes(searchTermLower);
+        
+      case 'gender':
+        return safeString(profile.properties?.gender).includes(searchTermLower);
+        
+      case 'nationality':
+        return safeString(profile.properties?.nationality).includes(searchTermLower);
+        
+      case 'phoneNumber':
+        return safeString(profile.properties?.phoneNumber).includes(searchTermLower);
+        
+      case 'age':
+        return safeString(profile.properties?.age).includes(searchTermLower);
+        
+      case 'birthDate':
+        return formatDate(profile.properties?.birthDate).includes(searchTermLower);
+        
+      case 'location':
+        return safeString(profile.properties?.location).includes(searchTermLower);
+        
+      case 'maritalStatus':
+        return safeString(profile.properties?.maritalStatus).includes(searchTermLower);
+      
+      // Location information  
+      case 'address':
+        return safeString(profile.properties?.address).includes(searchTermLower);
+        
+      case 'city':
+        return safeString(profile.properties?.city).includes(searchTermLower);
+        
+      case 'zipCode':
+        return safeString(profile.properties?.zipCode).includes(searchTermLower);
+      
+      // Education and professional information
+      case 'levelOfEducation':
+        return safeString(profile.properties?.levelOfEducation).includes(searchTermLower);
+        
+      case 'language':
+        return safeString(profile.properties?.language).includes(searchTermLower);
+        
+      case 'profession':
+        return safeString(profile.properties?.profession).includes(searchTermLower);
+        
+      case 'company':
+        return safeString(profile.properties?.company).includes(searchTermLower);
+      
+      // Sales information  
+      case 'averageSalesAmount':
+        return safeString(profile.properties?.averageSalesAmount).includes(searchTermLower);
+        
+      case 'totalNumberOfOrders':
+        return safeString(profile.properties?.totalNumberOfOrders).includes(searchTermLower);
+        
+      case 'totalSalesAmount':
+        return safeString(profile.properties?.totalSalesAmount).includes(searchTermLower);
+        
+      case 'all':
+      default:
+        // Search across all common fields (original behavior)
+        const firstName = safeString(profile.properties?.firstName);
+        const lastName = safeString(profile.properties?.lastName);
+        const fullName = `${firstName} ${lastName}`;
+        const email = safeString(profile.properties?.email);
+        const segments = (profile.segments?.join(' ') || '').toLowerCase();
+        const id = (profile.itemId || '').toLowerCase();
 
-    return (
-      firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      fullName.includes(searchTerm.toLowerCase()) ||
-      email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      segments.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      id.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+        return (
+          firstName.includes(searchTermLower) ||
+          lastName.includes(searchTermLower) ||
+          fullName.includes(searchTermLower) ||
+          email.includes(searchTermLower) ||
+          segments.includes(searchTermLower) ||
+          id.includes(searchTermLower)
+        );
+    }
   });
 
   // Pagination logic
@@ -304,12 +516,52 @@ function ProfileList() {
   return (
     <div className="profile-list">
       <h2>Profile List</h2>
-      <input
-        type="text"
-        placeholder="Search profiles..."
-        value={searchTerm}
-        onChange={handleSearchChange}
-      />
+      <div className="search-container">
+        <select 
+          value={selectedField} 
+          onChange={handleFieldChange}
+          className="field-selector"
+        >
+          <option value="all">All Fields</option>
+          <option value="firstName">First Name</option>
+          <option value="lastName">Last Name</option>
+          <option value="surename">Surename</option>
+          <option value="email">Email</option>
+          <option value="scopeEmail">Scope Email</option>
+          <option value="phoneNumber">Phone Number</option>
+          <option value="nbOfVisits">Number of Visits</option>
+          <option value="firstVisit">First Visit</option>
+          <option value="lastVisit">Last Visit</option>
+          <option value="lastUpdated">Last Updated</option>
+          <option value="kids">Kids</option>
+          <option value="jobTitle">Job Title</option>
+          <option value="gender">Gender</option>
+          <option value="nationality">Nationality</option>
+          <option value="age">Age</option>
+          <option value="birthDate">Birth Date</option>
+          <option value="location">Location</option>
+          <option value="maritalStatus">Marital Status</option>
+          <option value="address">Address</option>
+          <option value="city">City</option>
+          <option value="zipCode">ZIP Code</option>
+          <option value="levelOfEducation">Level of Education</option>
+          <option value="language">Language</option>
+          <option value="profession">Profession</option>
+          <option value="averageSalesAmount">Average Sales Amount</option>
+          <option value="totalNumberOfOrders">Total Number of Orders</option>
+          <option value="totalSalesAmount">Total Sales Amount</option>
+          <option value="company">Company</option>
+          <option value="segments">Segments</option>
+          <option value="id">ID</option>
+        </select>
+        <input
+          type="text"
+          placeholder={selectedField === 'all' ? "Search across all fields..." : `Search by ${selectedField}...`}
+          value={searchTerm}
+          onChange={handleSearchChange}
+          className="search-input"
+        />
+      </div>
       <div>
         <input
           type="checkbox"
@@ -421,595 +673,3 @@ function ProfileList() {
 }
 
 export default ProfileList;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import React, { useState, useEffect, useCallback } from 'react';
-// import { useNavigate } from 'react-router-dom';
-// import Modal from 'react-modal';
-// import '../ProfileList.css';
-
-// Modal.setAppElement('#root'); // Set the app element for accessibility
-
-// function ProfileList() {
-//   const [profiles, setProfiles] = useState([]);
-//   const [searchTerm, setSearchTerm] = useState('');
-//   const [currentPage, setCurrentPage] = useState(1);
-//   const profilesPerPage = 5;
-//   const [showAnonymous, setShowAnonymous] = useState(true);
-//   const [modalIsOpen, setModalIsOpen] = useState(false);
-//   const [profileToDelete, setProfileToDelete] = useState(null);
-
-//   const navigate = useNavigate(); // Use useNavigate instead of useHistory
-
-//   // Function to fetch profiles from the Unomi instance
-//   const fetchProfiles = useCallback(async () => {
-//     try {
-//       const response = await fetch('https://cdp.qilinsa.com:9443/cxs/profiles/search', {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json',
-//           'Authorization': 'Basic ' + btoa('karaf:karaf')
-//         },
-//         body: JSON.stringify({
-//           offset: 0,
-//           limit: 1000
-//         })
-//       });
-//       const data = await response.json();
-//       setProfiles(data.list);
-//     } catch (error) {
-//       console.error('Error fetching profiles:', error);
-//     }
-//   }, []);
-
-//   // Fetch profiles when the component mounts
-//   useEffect(() => {
-//     fetchProfiles();
-//   }, [fetchProfiles]);
-
-//   // Handle changes in the search input
-//   const handleSearchChange = (e) => {
-//     setSearchTerm(e.target.value);
-//   };
-
-//   // Handle pagination page changes
-//   const handlePageChange = (pageNumber) => {
-//     setCurrentPage(pageNumber);
-//   };
-
-//   // Toggle the display of anonymous profiles
-//   const handleShowAnonymousChange = () => {
-//     setShowAnonymous(!showAnonymous);
-//   };
-
-//   // Check if a profile is anonymous
-//   const isAnonymous = (profile) => {
-//     const firstName = profile.properties?.firstName || '';
-//     const lastName = profile.properties?.lastName || '';
-//     const email = profile.properties?.email || '';
-//     return !firstName && !lastName && !email;
-//   };
-
-//   // Filter profiles based on search term and anonymity
-//   const filteredProfiles = profiles.filter(profile => {
-//     if (!showAnonymous && isAnonymous(profile)) {
-//       return false;
-//     }
-//     const firstName = profile.properties?.firstName || '';
-//     const lastName = profile.properties?.lastName || '';
-//     const fullName = `${firstName} ${lastName}`.toLowerCase();
-//     const email = profile.properties?.email || '';
-//     const segments = profile.segments?.join(' ') || '';
-//     const id = profile.itemId || '';
-
-//     return (
-//       firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//       lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//       fullName.includes(searchTerm.toLowerCase()) ||
-//       email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//       segments.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//       id.toLowerCase().includes(searchTerm.toLowerCase())
-//     );
-//   });
-
-//   // Pagination logic
-//   const indexOfLastProfile = currentPage * profilesPerPage;
-//   const indexOfFirstProfile = indexOfLastProfile - profilesPerPage;
-//   const currentProfiles = filteredProfiles.slice(indexOfFirstProfile, indexOfLastProfile);
-//   const pageNumbers = [];
-//   const totalPages = Math.ceil(filteredProfiles.length / profilesPerPage);
-
-//   // Create pagination with progressive numeration
-//   for (let i = 1; i <= totalPages; i++) {
-//     if (
-//       i === 1 ||
-//       i === totalPages ||
-//       (i >= currentPage - 1 && i <= currentPage + 1)
-//     ) {
-//       pageNumbers.push(i);
-//     } else if (i === currentPage - 2 || i === currentPage + 2) {
-//       pageNumbers.push('...');
-//     }
-//   }
-
-//   // Open the confirmation modal
-//   const openModal = (profile) => {
-//     setProfileToDelete(profile);
-//     setModalIsOpen(true);
-//   };
-
-//   // Close the confirmation modal
-//   const closeModal = () => {
-//     setProfileToDelete(null);
-//     setModalIsOpen(false);
-//   };
-
-//   // Delete a profile by its ID
-//   const confirmDeleteProfile = async () => {
-//     try {
-//       if (profileToDelete) {
-//         await fetch(`https://cdp.qilinsa.com:9443/cxs/profiles/${profileToDelete.itemId}`, {
-//           method: 'DELETE',
-//           headers: {
-//             'Authorization': 'Basic ' + btoa('karaf:karaf')
-//           }
-//         });
-//         setProfiles(profiles.filter(profile => profile.itemId !== profileToDelete.itemId));
-
-//         // Delete profile from Mautic
-//         await fetch(`https://qilinsa.com/api/contacts/${profileToDelete.itemId}/delete`, {
-//           method: 'DELETE',
-//           headers: {
-//             'Authorization': 'Basic ' + btoa('YOUR_MAUTIC_USERNAME:YOUR_MAUTIC_PASSWORD')
-//           }
-//         });
-//         closeModal();
-//       }
-//     } catch (error) {
-//       console.error('Error deleting profile:', error);
-//     }
-//   };
-
-//   // Navigate to the profile detail page
-//   const handleProfileClick = (id) => {
-//     navigate(`/profile/${id}`);
-//   };
-
-//   return (
-//     <div className="profile-list">
-//       <h2>Profile List</h2>
-//       <input
-//         type="text"
-//         placeholder="Search profiles..."
-//         value={searchTerm}
-//         onChange={handleSearchChange}
-//       />
-//       <div>
-//         <input
-//           type="checkbox"
-//           checked={showAnonymous}
-//           onChange={handleShowAnonymousChange}
-//         />
-//         <label>Show Anonymous Profiles</label>
-//       </div>
-//       <ul>
-//         {currentProfiles.map(profile => (
-//           <li key={profile.itemId} className="profile-item">
-//             <h3>{profile.properties?.firstName} {profile.properties?.lastName}</h3>
-//             <p>ID: {profile.itemId}</p>
-//             <p>Email: {profile.properties?.email}</p>
-//             <p>Page View: {profile.properties?.pageViewCount ? profile.properties.pageViewCount : 'N/A'}</p>
-//             <p>Number of Visits: {profile.properties?.nbOfVisits}</p>
-//             <p>First Visit: {profile.properties?.firstVisit ? new Date(profile.properties.firstVisit).toLocaleString() : 'N/A'}</p>
-//             <p>Last Visit: {profile.properties?.lastVisit ? new Date(profile.properties.lastVisit).toLocaleString() : 'N/A'}</p>
-//             <p>Last Updated: {profile.systemProperties?.lastUpdated ? new Date(profile.systemProperties.lastUpdated).toLocaleString() : 'N/A'}</p>
-//             <p>Segments: {profile.segments?.join(', ')}</p>
-//             <div className="button-group">
-//             <button onClick={(e) => {e.stopPropagation(); handleProfileClick(profile.itemId);}} className="view-details">View Details</button>
-//             <button onClick={(e) => {e.stopPropagation(); openModal(profile);}} className="delete">Delete</button>
-//             </div>
-//           </li>
-//         ))}
-//       </ul>
-//       <div className="pagination">
-//         {pageNumbers.map((number, index) => (
-//           <button
-//             key={index}
-//             onClick={() => number !== '...' && handlePageChange(number)}
-//             className={currentPage === number ? 'active' : ''}
-//             disabled={number === '...'}
-//           >
-//             {number}
-//           </button>
-//         ))}
-//       </div>
-//       <Modal
-//         isOpen={modalIsOpen}
-//         onRequestClose={closeModal}
-//         contentLabel="Confirm Delete"
-//         className="modal"
-//         overlayClassName="overlay"
-//       >
-//         <h2>Confirm Delete</h2>
-//         <p>Are you sure you want to delete this profile?</p>
-//         <button onClick={confirmDeleteProfile}>Yes</button>
-//         <button onClick={closeModal}>No</button>
-//       </Modal>
-//     </div>
-//   );
-// }
-
-// export default ProfileList;
-
-
-
-
-
-
-
-// import React, { useState, useEffect, useCallback } from 'react';
-// import Modal from 'react-modal';
-// import '../ProfileList.css';
-
-// Modal.setAppElement('#root'); // Set the app element for accessibility
-
-// function ProfileList() {
-//   const [profiles, setProfiles] = useState([]);
-//   const [searchTerm, setSearchTerm] = useState('');
-//   const [currentPage, setCurrentPage] = useState(1);
-//   const profilesPerPage = 5;
-//   const [showAnonymous, setShowAnonymous] = useState(true);
-//   const [modalIsOpen, setModalIsOpen] = useState(false);
-//   const [profileToDelete, setProfileToDelete] = useState(null);
-
-//   // Function to fetch profiles from the Unomi instance
-//   const fetchProfiles = useCallback(async () => {
-//     try {
-//       const response = await fetch('https://cdp.qilinsa.com:9443/cxs/profiles/search', {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json',
-//           'Authorization': 'Basic ' + btoa('karaf:karaf')
-//         },
-//         body: JSON.stringify({
-//           offset: 0,
-//           limit: 1000
-//         })
-//       });
-//       const data = await response.json();
-//       setProfiles(data.list);
-//     } catch (error) {
-//       console.error('Error fetching profiles:', error);
-//     }
-//   }, []);
-
-//   // Fetch profiles when the component mounts
-//   useEffect(() => {
-//     fetchProfiles();
-//   }, [fetchProfiles]);
-
-//   // Handle changes in the search input
-//   const handleSearchChange = (e) => {
-//     setSearchTerm(e.target.value);
-//   };
-
-//   // Handle pagination page changes
-//   const handlePageChange = (pageNumber) => {
-//     setCurrentPage(pageNumber);
-//   };
-
-//   // Toggle the display of anonymous profiles
-//   const handleShowAnonymousChange = () => {
-//     setShowAnonymous(!showAnonymous);
-//   };
-
-//   // Check if a profile is anonymous
-//   const isAnonymous = (profile) => {
-//     const firstName = profile.properties?.firstName || '';
-//     const lastName = profile.properties?.lastName || '';
-//     const email = profile.properties?.email || '';
-//     return !firstName && !lastName && !email;
-//   };
-
-//   // Filter profiles based on search term and anonymity
-//   const filteredProfiles = profiles.filter(profile => {
-//     if (!showAnonymous && isAnonymous(profile)) {
-//       return false;
-//     }
-//     const firstName = profile.properties?.firstName || '';
-//     const lastName = profile.properties?.lastName || '';
-//     const fullName = `${firstName} ${lastName}`.toLowerCase();
-//     const email = profile.properties?.email || '';
-//     const segments = profile.segments?.join(' ') || '';
-//     const id = profile.itemId || '';
-
-//     return (
-//       firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//       lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//       fullName.includes(searchTerm.toLowerCase()) ||
-//       email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//       segments.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//       id.toLowerCase().includes(searchTerm.toLowerCase())
-//     );
-//   });
-
-//   // Pagination logic
-//   const indexOfLastProfile = currentPage * profilesPerPage;
-//   const indexOfFirstProfile = indexOfLastProfile - profilesPerPage;
-//   const currentProfiles = filteredProfiles.slice(indexOfFirstProfile, indexOfLastProfile);
-//   const pageNumbers = [];
-//   const totalPages = Math.ceil(filteredProfiles.length / profilesPerPage);
-
-//   // Create pagination with progressive numeration
-//   for (let i = 1; i <= totalPages; i++) {
-//     if (
-//       i === 1 ||
-//       i === totalPages ||
-//       (i >= currentPage - 1 && i <= currentPage + 1)
-//     ) {
-//       pageNumbers.push(i);
-//     } else if (i === currentPage - 2 || i === currentPage + 2) {
-//       pageNumbers.push('...');
-//     }
-//   }
-
-//   // Open the confirmation modal
-//   const openModal = (profile) => {
-//     setProfileToDelete(profile);
-//     setModalIsOpen(true);
-//   };
-
-//   // Close the confirmation modal
-//   const closeModal = () => {
-//     setProfileToDelete(null);
-//     setModalIsOpen(false);
-//   };
-
-//   // Delete a profile by its ID
-//   const confirmDeleteProfile = async () => {
-//     try {
-//       if (profileToDelete) {
-//         await fetch(`https://cdp.qilinsa.com:9443/cxs/profiles/${profileToDelete.itemId}`, {
-//           method: 'DELETE',
-//           headers: {
-//             'Authorization': 'Basic ' + btoa('karaf:karaf')
-//           }
-//         });
-//         setProfiles(profiles.filter(profile => profile.itemId !== profileToDelete.itemId));
-
-//         // Delete profile from Mautic
-//         await fetch(`https://qilinsa.com/api/contacts/${profileToDelete.itemId}/delete`, {
-//           method: 'DELETE',
-//           headers: {
-//             'Authorization': 'Basic ' + btoa('YOUR_MAUTIC_USERNAME:YOUR_MAUTIC_PASSWORD')
-//           }
-//         });
-//         closeModal();
-//       }
-//     } catch (error) {
-//       console.error('Error deleting profile:', error);
-//     }
-//   };
-
-//   return (
-//     <div className="profile-list">
-//       <h2>Profile List</h2>
-//       <input
-//         type="text"
-//         placeholder="Search profiles..."
-//         value={searchTerm}
-//         onChange={handleSearchChange}
-//       />
-//       <div>
-//         <input
-//           type="checkbox"
-//           checked={showAnonymous}
-//           onChange={handleShowAnonymousChange}
-//         />
-//         <label>Show Anonymous Profiles</label>
-//       </div>
-//       <ul>
-//         {currentProfiles.map(profile => (
-//           <li key={profile.itemId} className="profile-item">
-//             <h3>{profile.properties?.firstName} {profile.properties?.lastName}</h3>
-//             <p>ID: {profile.itemId}</p>
-//             <p>Email: {profile.properties?.email}</p>
-//             <p>Number of Visits: {profile.properties?.nbOfVisits}</p>
-//             <p>First Visit: {profile.properties?.firstVisit ? new Date(profile.properties.firstVisit).toLocaleString() : 'N/A'}</p>
-//             <p>Last Visit: {profile.properties?.lastVisit ? new Date(profile.properties.lastVisit).toLocaleString() : 'N/A'}</p>
-//             <p>Last Updated: {profile.systemProperties?.lastUpdated ? new Date(profile.systemProperties.lastUpdated).toLocaleString() : 'N/A'}</p>
-//             <p>Segments: {profile.segments?.join(', ')}</p>
-//             <button onClick={() => openModal(profile)}>Delete</button>
-//           </li>
-//         ))}
-//       </ul>
-//       <div className="pagination">
-//         {pageNumbers.map((number, index) => (
-//           <button
-//             key={index}
-//             onClick={() => number !== '...' && handlePageChange(number)}
-//             className={currentPage === number ? 'active' : ''}
-//             disabled={number === '...'}
-//           >
-//             {number}
-//           </button>
-//         ))}
-//       </div>
-//       <Modal
-//         isOpen={modalIsOpen}
-//         onRequestClose={closeModal}
-//         contentLabel="Confirm Delete"
-//         className="modal"
-//         overlayClassName="overlay"
-//       >
-//         <h2>Confirm Delete</h2>
-//         <p>Are you sure you want to delete this profile?</p>
-//         <button onClick={confirmDeleteProfile}>Yes</button>
-//         <button onClick={closeModal}>No</button>
-//       </Modal>
-//     </div>
-//   );
-// }
-
-// export default ProfileList;
-
-
-// import React, { useState, useEffect } from 'react';
-// import '../ProfileList.css';
-
-// function ProfileList() {
-//   const [profiles, setProfiles] = useState([]);
-//   const [searchTerm, setSearchTerm] = useState('');
-//   const [currentPage, setCurrentPage] = useState(1);
-//   const profilesPerPage = 10;
-//   const [showAnonymous, setShowAnonymous] = useState(true);
-
-//   // Fetch profiles when the component mounts
-//   useEffect(() => {
-//     fetchProfiles();
-//   }, []);
-
-//   // Function to fetch profiles from the Unomi instance
-//   const fetchProfiles = async () => {
-//     try {
-//       const response = await fetch('https://cdp.qilinsa.com:9443/cxs/profiles/search', {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json',
-//           'Authorization': 'Basic ' + btoa('karaf:karaf')
-//         },
-//         body: JSON.stringify({
-//           offset: 0,
-//           limit: 1000
-//         })
-//       });
-//       const data = await response.json();
-//       setProfiles(data.list);
-//     } catch (error) {
-//       console.error('Error fetching profiles:', error);
-//     }
-//   };
-
-//   // Handle changes in the search input
-//   const handleSearchChange = (e) => {
-//     setSearchTerm(e.target.value);
-//   };
-
-//   // Handle pagination page changes
-//   const handlePageChange = (pageNumber) => {
-//     setCurrentPage(pageNumber);
-//   };
-
-//   // Toggle the display of anonymous profiles
-//   const handleShowAnonymousChange = () => {
-//     setShowAnonymous(!showAnonymous);
-//   };
-
-//   // Check if a profile is anonymous
-//   const isAnonymous = (profile) => {
-//     const firstName = profile.properties?.firstName || '';
-//     const lastName = profile.properties?.lastName || '';
-//     const email = profile.properties?.email || '';
-//     return !firstName && !lastName && !email;
-//   };
-
-//   // Filter profiles based on search term and anonymity
-//   const filteredProfiles = profiles.filter(profile => {
-//     if (!showAnonymous && isAnonymous(profile)) {
-//       return false;
-//     }
-//     const firstName = profile.properties?.firstName || '';
-//     const lastName = profile.properties?.lastName || '';
-//     const email = profile.properties?.email || '';
-//     return (
-//       firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//       lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//       email.toLowerCase().includes(searchTerm.toLowerCase())
-//     );
-//   });
-
-//   // Pagination logic
-//   const indexOfLastProfile = currentPage * profilesPerPage;
-//   const indexOfFirstProfile = indexOfLastProfile - profilesPerPage;
-//   const currentProfiles = filteredProfiles.slice(indexOfFirstProfile, indexOfLastProfile);
-//   const pageNumbers = [];
-
-//   for (let i = 1; i <= Math.ceil(filteredProfiles.length / profilesPerPage); i++) {
-//     pageNumbers.push(i);
-//   }
-
-//   // Delete a profile by its ID
-//   const deleteProfile = async (profileId) => {
-//     try {
-//       await fetch(`https://cdp.qilinsa.com:9443/cxs/profiles/${profileId}`, {
-//         method: 'DELETE',
-//         headers: {
-//           'Authorization': 'Basic ' + btoa('karaf:karaf')
-//         }
-//       });
-//       setProfiles(profiles.filter(profile => profile.itemId !== profileId));
-//     } catch (error) {
-//       console.error('Error deleting profile:', error);
-//     }
-//   };
-
-//   return (
-//     <div className="profile-list">
-//       <h2>Profile List</h2>
-//       <input
-//         type="text"
-//         placeholder="Search profiles..."
-//         value={searchTerm}
-//         onChange={handleSearchChange}
-//       />
-//       <div>
-//         <input
-//           type="checkbox"
-//           checked={showAnonymous}
-//           onChange={handleShowAnonymousChange}
-//         />
-//         <label>Show Anonymous Profiles</label>
-//       </div>
-//       <ul>
-//         {currentProfiles.map(profile => (
-//           <li key={profile.itemId} className="profile-item">
-//             <h3>{profile.properties?.firstName} {profile.properties?.lastName}</h3>
-//             <p>ID: {profile.itemId}</p>
-//             <p>Email: {profile.properties?.email}</p>
-//             <p>Number of Visits: {profile.properties?.nbOfVisits}</p>
-//             <p>First Visit: {profile.properties?.firstVisit ? new Date(profile.properties.firstVisit).toLocaleString() : 'N/A'}</p>
-//             <p>Last Visit: {profile.properties?.lastVisit ? new Date(profile.properties.lastVisit).toLocaleString() : 'N/A'}</p>
-//             <p>Last Updated: {profile.systemProperties?.lastUpdated ? new Date(profile.systemProperties.lastUpdated).toLocaleString() : 'N/A'}</p>
-//             <p>Segments: {profile.segments?.join(', ')}</p>
-//             <button onClick={() => deleteProfile(profile.itemId)}>Delete</button>
-//           </li>
-//         ))}
-//       </ul>
-//       <div className="pagination">
-//         {pageNumbers.map(number => (
-//           <button
-//             key={number}
-//             onClick={() => handlePageChange(number)}
-//             className={currentPage === number ? 'active' : ''}
-//           >
-//             {number}
-//           </button>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default ProfileList;

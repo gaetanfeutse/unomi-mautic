@@ -79,7 +79,25 @@ function SegmentList() {
         // Also check for different lengths which indicates added or removed segments
         if (hasNewSegments || prevSegments.length !== normalizedSegments.length) {
           console.log('New segments detected, updating state...');
-          return normalizedSegments;
+          
+          // Sort segments by creation timestamp in descending order to show newest segments at top
+          const sortedSegments = [...normalizedSegments].sort((a, b) => {
+            // Try to get timestamps from various possible locations in the segment data
+            const getTimestamp = (segment) => {
+              if (segment.metadata && segment.metadata.timeStamp) {
+                return segment.metadata.timeStamp;
+              } else if (segment.creationDate) {
+                return new Date(segment.creationDate).getTime();
+              } else if (segment.lastUpdated) {
+                return new Date(segment.lastUpdated).getTime();
+              }
+              return 0; // Default value if no timestamp is found
+            };
+            
+            return getTimestamp(b) - getTimestamp(a); // Descending order (newest first)
+          });
+          
+          return sortedSegments;
         }
         
         console.log('No new segments detected, keeping current state');
@@ -126,11 +144,29 @@ function SegmentList() {
     );
   });
 
+  // Sort the filtered segments to ensure newest segments appear at the top
+  // This is a safeguard in case new segments are added without triggering a full re-fetch
+  const sortedFilteredSegments = [...filteredSegments].sort((a, b) => {
+    // Try to get timestamps from various possible locations in the segment data
+    const getTimestamp = (segment) => {
+      if (segment.metadata && segment.metadata.timeStamp) {
+        return segment.metadata.timeStamp;
+      } else if (segment.creationDate) {
+        return new Date(segment.creationDate).getTime();
+      } else if (segment.lastUpdated) {
+        return new Date(segment.lastUpdated).getTime();
+      }
+      return 0; // Default value if no timestamp is found
+    };
+    
+    return getTimestamp(b) - getTimestamp(a); // Descending order (newest first)
+  });
+  
   // Pagination logic
   const indexOfLastSegment = currentPage * segmentsPerPage;
   const indexOfFirstSegment = indexOfLastSegment - segmentsPerPage;
-  const currentSegments = filteredSegments.slice(indexOfFirstSegment, indexOfLastSegment);
-  const totalPages = Math.ceil(filteredSegments.length / segmentsPerPage);
+  const currentSegments = sortedFilteredSegments.slice(indexOfFirstSegment, indexOfLastSegment);
+  const totalPages = Math.ceil(sortedFilteredSegments.length / segmentsPerPage);
   const pageNumbers = [];
 
   // Create pagination with progressive numeration
